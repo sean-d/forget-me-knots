@@ -12,6 +12,6 @@ A simple task tracking application for sewing projects.
 
 
 ## Tech Stack:
-**insert build instructions here**
-
-
+* Node@20
+* npm
+* electron ```npm install electron --save-dev```
