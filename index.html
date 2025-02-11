@@ -42,11 +42,11 @@
 
       /* Add button - Orange */
       button.add {
-        background-color: #ff9800;
+        background-color: #aa5;
       }
 
       button.add:hover {
-        background-color: #e68900;
+        background-color: #bb9;
       }
 
       /* Done button - Green */
@@ -73,6 +73,14 @@
       }
 
       button.delete:hover {
+        background-color: #a71d2a;
+      }
+      /* Save button - Red */
+      button.save {
+        background-color: #ff9900;
+      }
+
+      button.save:hover {
         background-color: #a71d2a;
       }
     </style>
@@ -109,6 +117,7 @@
         <td>
           <button class="done" onclick="markAsDone(this)">done</button>
           <button class="delete" onclick="deleteRow(this)">delete</button>
+          <button class="save" onclick="saveRow(this)">save</button>
         </td>
       </tr>
     </table>

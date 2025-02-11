@@ -15,7 +15,8 @@ function addRow() {
     '<input type="checkbox" />',
     '<input type="checkbox" />',
     `<button class="done" onclick="markAsDone(this)">done</button> 
-     <button class="delete" onclick="deleteRow(this)">delete</button>`
+     <button class="delete" onclick="deleteRow(this)">delete</button>
+     <button class="save" onclick="saveRow(this)">save</button>`
   ];
 
   cells.forEach((cell, index) => {
@@ -65,3 +66,58 @@ function markAsDone(button) {
   }
 }
 
+// async function saveRow(button) {
+//   const row = button.closest("tr");
+//   const inputs = row.querySelectorAll("input, textarea");
+//
+//   const rowData = {
+//     completed_date: inputs[0].value || null,
+//     project_name: inputs[1].value || "",
+//     fabric_chosen: inputs[2].checked ? 1 : 0,
+//     cut: inputs[3].checked ? 1 : 0,
+//     pieced: inputs[4].checked ? 1 : 0,
+//     assembled: inputs[5].checked ? 1 : 0,
+//     back_prepped: inputs[6].checked ? 1 : 0,
+//     basted: inputs[7].checked ? 1 : 0,
+//     quilted: inputs[8].checked ? 1 : 0,
+//     bound: inputs[9].checked ? 1 : 0,
+//     photographed: inputs[10].checked ? 1 : 0,
+//   };
+//
+//   // Send data to Electron for saving
+//   const response = await window.electronAPI.saveRow(rowData);
+//
+//   if (response.success) {
+//     alert("Row saved successfully!");
+//   } else {
+//     alert("Error saving row.");
+//   }
+// }
+
+async function saveRow(button) {
+  const row = button.closest("tr");
+  const inputs = row.querySelectorAll("input, textarea");
+
+  const rowData = {
+    completed_date: inputs[0].value || null,
+    project_name: inputs[1].value || "",
+    fabric_chosen: inputs[2].checked ? 1 : 0,
+    cut: inputs[3].checked ? 1 : 0,
+    pieced: inputs[4].checked ? 1 : 0,
+    assembled: inputs[5].checked ? 1 : 0,
+    back_prepped: inputs[6].checked ? 1 : 0,
+    basted: inputs[7].checked ? 1 : 0,
+    quilted: inputs[8].checked ? 1 : 0,
+    bound: inputs[9].checked ? 1 : 0,
+    photographed: inputs[10].checked ? 1 : 0,
+  };
+
+  // Send data to Electron for saving in SQLite
+  const response = await window.electronAPI.saveRow(rowData);
+
+  if (response.success) {
+    alert("Row saved successfully!");
+  } else {
+    alert("Error saving row.");
+  }
+}
