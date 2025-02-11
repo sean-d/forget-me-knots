@@ -1,0 +1,23 @@
+{
+  "name": "forget-me-knots",
+  "version": "1.0.0",
+  "description": "sewing project tracking tool",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sean-d/forget-me-knots.git"
+  },
+  "author": "me",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sean-d/forget-me-knots/issues"
+  },
+  "homepage": "https://github.com/sean-d/forget-me-knots#readme",
+  "devDependencies": {
+    "electron": "^34.1.1"
+  }
+}
