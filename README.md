@@ -12,9 +12,6 @@ A simple task tracking application for sewing projects.
 
 
 ## Tech Stack:
-* simple html and javascript for the frontend. keep the js as limited as possbile; js will always be trash.
-* keep the logic in the backend for db interactions and such
-* single codebase for all platforms: rust it is
-
+**insert build instructions here**
 
 
