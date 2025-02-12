@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS projects (
   basted INTEGER,
   quilted INTEGER,
   bound INTEGER,
-  photographed INTEGER
+  photographed INTEGER,
+  archived INTEGER DEFAULT 0
 )
 `);
 
@@ -39,10 +40,9 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// handle save request from renderer
+
 ipcMain.handle("saveRow", async (event, rowData) => {
   try {
-    // Ensure all values are valid (numbers, strings, or null)
     const values = [
       rowData.completedDate || null,
       rowData.projectName || null,
@@ -55,27 +55,24 @@ ipcMain.handle("saveRow", async (event, rowData) => {
       Number(rowData.quilted) || 0,
       Number(rowData.bound) || 0,
       Number(rowData.photographed) || 0,
+      0, // Default archived = 0 (not archived)
     ];
 
     if (rowData.id) {
-      // Update existing record
       const stmt = db.prepare(`
         UPDATE projects 
         SET completed_date = ?, project_name = ?, fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?, 
-            back_prepped = ?, basted = ?, quilted = ?, bound = ?, photographed = ?
+            back_prepped = ?, basted = ?, quilted = ?, bound = ?, photographed = ?, archived = ?
         WHERE id = ?
       `);
-
       stmt.run(...values, rowData.id);
       return { success: true, id: rowData.id };
     } else {
-      // Insert new record
       const stmt = db.prepare(`
         INSERT INTO projects (completed_date, project_name, fabric_chosen, cut, pieced, assembled, 
-                              back_prepped, basted, quilted, bound, photographed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                              back_prepped, basted, quilted, bound, photographed, archived)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-
       const info = stmt.run(...values);
       return { success: true, id: info.lastInsertRowid };
     }
@@ -94,6 +91,38 @@ ipcMain.handle("deleteRow", async (event, rowId) => {
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
+  try {
+    const stmt = db.prepare("UPDATE projects SET archived = ? WHERE id = ?");
+    stmt.run(isArchived ? 1 : 0, rowId);
+    return { success: true };
+  } catch (error) {
+    console.error("Archive Error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+
+ipcMain.handle("getArchivedRows", async () => {
+  try {
+    const rows = db.prepare("SELECT * FROM projects WHERE archived = 1").all();
+    return rows;
+  } catch (error) {
+    console.error("Fetch Archived Error:", error);
+    return [];
+  }
+});
+
+ipcMain.handle("getActiveRows", async () => {
+  try {
+    const rows = db.prepare("SELECT * FROM projects WHERE archived = 0").all();
+    return rows;
+  } catch (error) {
+    console.error("Fetch Active Error:", error);
+    return [];
   }
 });
 
