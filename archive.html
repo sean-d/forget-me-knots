@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archived Projects</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    button {
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+    .back {
+      background-color: #007bff;
+    }
+    .back:hover {
+      background-color: #0056b3;
+    }
+    .restore {
+      background-color: #28a745;
+    }
+    .restore:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+<h1>Archived Projects</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Completed Date</th>
+    <th>Project Name</th>
+    <th>Fabric Chosen</th>
+    <th>Cut</th>
+    <th>Pieced</th>
+    <th>Assembled</th>
+    <th>Back Prepped</th>
+    <th>Basted</th>
+    <th>Quilted</th>
+    <th>Bound</th>
+    <th>Photographed</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody id="archive-table">
+  <!-- Archived rows will be inserted here -->
+  </tbody>
+</table>
+
+<button class="back" onclick="window.location.href='index.html'">Go Back Home</button>
+
+<script src="archive.js"></script>
+</body>
+</html>
