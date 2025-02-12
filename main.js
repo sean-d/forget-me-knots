@@ -6,22 +6,6 @@ const Database = require("better-sqlite3");
 const db = new Database("fmk.db");
 
 // Ensure table is created
-/*
-  CREATE TABLE IF NOT EXISTS projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    completed_date TEXT,
-    project_name TEXT,
-    fabric_chosen INTEGER,
-    cut INTEGER,
-    pieced INTEGER,
-    assembled INTEGER,
-    back_prepped INTEGER,
-    basted INTEGER,
-    quilted INTEGER,
-    bound INTEGER,
-    photographed INTEGER
-  )
- */
 db.exec(`
 CREATE TABLE IF NOT EXISTS projects (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,31 +39,7 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// // Handle saving a row to SQLite
-// ipcMain.handle("save-row", (event, rowData) => {
-//   const stmt = db.prepare(`
-//     INSERT INTO projects (completed_date, project_name, fabric_chosen, cut, pieced, assembled, back_prepped, basted, quilted, bound, photographed)
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//   `);
-//
-//   stmt.run(
-//       rowData.completed_date,
-//       rowData.project_name,
-//       rowData.fabric_chosen,
-//       rowData.cut,
-//       rowData.pieced,
-//       rowData.assembled,
-//       rowData.back_prepped,
-//       rowData.basted,
-//       rowData.quilted,
-//       rowData.bound,
-//       rowData.photographed
-//   );
-//
-//   return { success: true };
-// });
-
-// Handle Save Request from Renderer
+// handle save request from renderer
 ipcMain.handle("saveRow", async (event, rowData) => {
   try {
     // Ensure all values are valid (numbers, strings, or null)
@@ -119,6 +79,18 @@ ipcMain.handle("saveRow", async (event, rowData) => {
       const info = stmt.run(...values);
       return { success: true, id: info.lastInsertRowid };
     }
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// handle delete request from renderer
+ipcMain.handle("deleteRow", async (event, rowId) => {
+  try {
+    const stmt = db.prepare("DELETE FROM projects WHERE id = ?");
+    stmt.run(rowId);
+    return { success: true };
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, error: error.message };
