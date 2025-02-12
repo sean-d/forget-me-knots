@@ -32,10 +32,6 @@ function addRow() {
   });
 }
 
-function deleteRow(button) {
-  const row = button.parentNode.parentNode;
-  row.parentNode.removeChild(row);
-}
 
 const existingRow = document.querySelector("table tr:nth-child(2)");
 
@@ -67,34 +63,6 @@ function markAsDone(button) {
 }
 
 
-// async function saveRow(button) {
-//   const row = button.closest("tr");
-//   const inputs = row.querySelectorAll("input, textarea");
-//
-//   const rowData = {
-//     completed_date: inputs[0].value || null,
-//     project_name: inputs[1].value || "",
-//     fabric_chosen: inputs[2].checked ? 1 : 0,
-//     cut: inputs[3].checked ? 1 : 0,
-//     pieced: inputs[4].checked ? 1 : 0,
-//     assembled: inputs[5].checked ? 1 : 0,
-//     back_prepped: inputs[6].checked ? 1 : 0,
-//     basted: inputs[7].checked ? 1 : 0,
-//     quilted: inputs[8].checked ? 1 : 0,
-//     bound: inputs[9].checked ? 1 : 0,
-//     photographed: inputs[10].checked ? 1 : 0,
-//   };
-//
-//   // Send data to Electron for saving in SQLite
-//   const response = await window.electronAPI.saveRow(rowData);
-//
-//   if (response.success) {
-//     alert("Row saved successfully!");
-//   } else {
-//     alert("Error saving row.");
-//   }
-// }
-
 async function saveRow(button) {
   const row = button.closest("tr");
   let rowId = row.dataset.id || null; // Retrieve existing ID if available
@@ -124,5 +92,29 @@ async function saveRow(button) {
     alert("Row saved successfully!");
   } else {
     alert("Error saving row.");
+  }
+}
+
+async function deleteRow(button) {
+  const row = button.closest("tr");
+  const rowId = row.dataset.id; // Get row ID
+
+  if (!rowId) {
+    alert("This item hasn't been saved yet.");
+    row.remove(); // Remove unsaved row from UI
+    return;
+  }
+
+  const confirmDelete = confirm("Are you sure you want to delete this item?");
+  if (!confirmDelete) return;
+
+  // Send delete request to the Electron main process
+  const response = await window.electronAPI.deleteRow(rowId);
+
+  if (response.success) {
+    row.remove(); // Remove row from UI after successful deletion from DB
+    alert("Item deleted successfully!");
+  } else {
+    alert("Error deleting item: " + response.error);
   }
 }
