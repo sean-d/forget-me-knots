@@ -66,6 +66,7 @@ function markAsDone(button) {
   }
 }
 
+
 // async function saveRow(button) {
 //   const row = button.closest("tr");
 //   const inputs = row.querySelectorAll("input, textarea");
@@ -84,7 +85,7 @@ function markAsDone(button) {
 //     photographed: inputs[10].checked ? 1 : 0,
 //   };
 //
-//   // Send data to Electron for saving
+//   // Send data to Electron for saving in SQLite
 //   const response = await window.electronAPI.saveRow(rowData);
 //
 //   if (response.success) {
@@ -96,26 +97,30 @@ function markAsDone(button) {
 
 async function saveRow(button) {
   const row = button.closest("tr");
-  const inputs = row.querySelectorAll("input, textarea");
+  let rowId = row.dataset.id || null; // Retrieve existing ID if available
 
-  const rowData = {
-    completed_date: inputs[0].value || null,
-    project_name: inputs[1].value || "",
-    fabric_chosen: inputs[2].checked ? 1 : 0,
-    cut: inputs[3].checked ? 1 : 0,
-    pieced: inputs[4].checked ? 1 : 0,
-    assembled: inputs[5].checked ? 1 : 0,
-    back_prepped: inputs[6].checked ? 1 : 0,
-    basted: inputs[7].checked ? 1 : 0,
-    quilted: inputs[8].checked ? 1 : 0,
-    bound: inputs[9].checked ? 1 : 0,
-    photographed: inputs[10].checked ? 1 : 0,
+  const data = {
+    id: rowId, // Include ID for update check
+    completedDate: row.querySelector('input[type="date"]').value,
+    projectName: row.querySelector("textarea").value,
+    fabricChosen: row.querySelectorAll('input[type="checkbox"]')[0].checked,
+    cut: row.querySelectorAll('input[type="checkbox"]')[1].checked,
+    pieced: row.querySelectorAll('input[type="checkbox"]')[2].checked,
+    assembled: row.querySelectorAll('input[type="checkbox"]')[3].checked,
+    backPrepped: row.querySelectorAll('input[type="checkbox"]')[4].checked,
+    basted: row.querySelectorAll('input[type="checkbox"]')[5].checked,
+    quilted: row.querySelectorAll('input[type="checkbox"]')[6].checked,
+    bound: row.querySelectorAll('input[type="checkbox"]')[7].checked,
+    photographed: row.querySelectorAll('input[type="checkbox"]')[8].checked,
   };
 
-  // Send data to Electron for saving in SQLite
-  const response = await window.electronAPI.saveRow(rowData);
+  // Send data to Electron's main process
+  const response = await window.electronAPI.saveRow(data);
 
   if (response.success) {
+    if (!rowId) {
+      row.dataset.id = response.id; // Store the new ID in the row
+    }
     alert("Row saved successfully!");
   } else {
     alert("Error saving row.");
