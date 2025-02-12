@@ -93,6 +93,15 @@
         background-color: #bb9;
       }
 
+      /* recycle bin button - Red */
+      button.deleted {
+        background-color: #ff9900;
+      }
+
+      button.deleted:hover {
+        background-color: #a71d2a;
+      }
+
     </style>
   </head>
   <body>
@@ -133,6 +142,7 @@
     </table>
     <button class="add" onclick="addRow()">add...</button>
     <button class="archive" onclick="window.location.href='archive.html'">zee archives...</button>
+    <button class="deleted" onclick="window.location.href='deleted.html'">recycle bin...</button>
 
     <script src="script.js"></script>
   </body>

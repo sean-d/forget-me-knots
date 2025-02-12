@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deleted Items</title>
+    <script defer src="deleted.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+        button { padding: 5px 10px; cursor: pointer; }
+        .restore { background-color: #28a745; color: white; }
+        .restore:hover { background-color: #218838; }
+        .back { background-color: #007bff; color: white; }
+        .back:hover { background-color: #0056b3; }
+        .sort { background-color: #ff9800; color: white; }
+        .sort:hover { background-color: #e68a00; }
+    </style>
+</head>
+<body>
+
+<h1>Deleted Items</h1>
+
+<!-- Sorting Buttons -->
+<div>
+    <button class="sort" onclick="loadDeletedItems('completed_date', 'ASC')">Sort by Date ↑</button>
+    <button class="sort" onclick="loadDeletedItems('completed_date', 'DESC')">Sort by Date ↓</button>
+    <button class="sort" onclick="loadDeletedItems('project_name', 'ASC')">Sort by Name A-Z</button>
+    <button class="sort" onclick="loadDeletedItems('project_name', 'DESC')">Sort by Name Z-A</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Completed Date</th>
+        <th>Project Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="deleted-table"></tbody>
+</table>
+
+<button class="back" onclick="window.location.href='index.html'">home...</button>
+<button class="back" onclick="window.location.href='archive.html'">zee archives...</button>
+
+</body>
+</html>
