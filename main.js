@@ -134,6 +134,17 @@ ipcMain.handle("restoreDeletedRow", async (event, rowId) => {
   }
 });
 
+ipcMain.handle("purgeDeletedRows", async () => {
+  try {
+    const stmt = db.prepare("DELETE FROM projects WHERE deleted = 1");
+    stmt.run();
+    return { success: true };
+  } catch (error) {
+    console.error("Purge Error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   try {
     const stmt = db.prepare("UPDATE projects SET archived = ? WHERE id = ?");

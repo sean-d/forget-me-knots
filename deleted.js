@@ -49,3 +49,17 @@ async function restoreDeleted(rowId) {
         alert("Error restoring item: " + response.error);
     }
 }
+
+async function purgeDeletedItems() {
+    const confirmPurge = confirm("Are you sure you want to permanently delete all items?");
+    if (!confirmPurge) return;
+
+    const response = await window.electronAPI.purgeDeletedRows();
+
+    if (response.success) {
+        alert("All deleted items have been permanently removed!");
+        document.getElementById("deleted-table").innerHTML = ""; // Clear the UI
+    } else {
+        alert("Error purging items: " + response.error);
+    }
+}

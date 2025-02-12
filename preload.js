@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     archiveRow: (id, isArchived) => ipcRenderer.invoke("archiveRow", id, isArchived),
     getArchivedRows: (sortBy, sortOrder) => ipcRenderer.invoke("getArchivedRows", sortBy, sortOrder),
     getActiveRows: () => ipcRenderer.invoke("getActiveRows"),
-    getDeletedRows: (sortBy, sortOrder) => ipcRenderer.invoke("getDeletedRows", sortBy, sortOrder), // ✅ Ensure this is here
+    getDeletedRows: (sortBy, sortOrder) => ipcRenderer.invoke("getDeletedRows", sortBy, sortOrder),
     restoreDeletedRow: (id) => ipcRenderer.invoke("restoreDeletedRow", id),
+    purgeDeletedRows: () => ipcRenderer.invoke("purgeDeletedRows"), // ✅ Add this
 });
