@@ -117,22 +117,20 @@ async function deleteRow(button) {
   const row = button.closest("tr");
   const rowId = row.dataset.id; // Get row ID
 
-  // Always ask for confirmation before deleting
   const confirmDelete = confirm("Are you sure you wish to delete this?");
   if (!confirmDelete) return;
 
   if (!rowId) {
-    // If row is not saved, just remove it from the UI
-    row.remove();
+    row.remove(); // If row isn't saved, just remove it from UI
     return;
   }
 
-  // If row is saved, delete it from the database
+  // Mark the item as deleted in the database
   const response = await window.electronAPI.deleteRow(rowId);
 
   if (response.success) {
-    row.remove(); // Remove row from UI
-    alert("Item deleted successfully!");
+    row.remove(); // Remove from active list
+    alert("Item moved to Deleted Items!");
   } else {
     alert("Error deleting item: " + response.error);
   }
@@ -196,9 +194,6 @@ async function loadActiveItems() {
     tableBody.appendChild(tr);
   });
 }
-
-// Load active items when the page loads
-document.addEventListener("DOMContentLoaded", loadActiveItems);
 
 // Load active items when the page loads
 document.addEventListener("DOMContentLoaded", loadActiveItems);

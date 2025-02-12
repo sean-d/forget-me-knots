@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS projects (
   quilted INTEGER,
   bound INTEGER,
   photographed INTEGER,
-  archived INTEGER DEFAULT 0
+  archived INTEGER DEFAULT 0,
+  deleted INTEGER DEFAULT 0
 )
 `);
 
@@ -82,14 +83,53 @@ ipcMain.handle("saveRow", async (event, rowData) => {
   }
 });
 
-// handle delete request from renderer
+// // handle delete request from renderer
+
 ipcMain.handle("deleteRow", async (event, rowId) => {
   try {
-    const stmt = db.prepare("DELETE FROM projects WHERE id = ?");
+    const stmt = db.prepare("UPDATE projects SET deleted = 1 WHERE id = ?");
     stmt.run(rowId);
     return { success: true };
   } catch (error) {
-    console.error("Database Error:", error);
+    console.error("Delete Error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Fetch all deleted items
+
+
+ipcMain.handle("getDeletedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
+  try {
+    const validColumns = ["completed_date", "project_name"];
+    const validOrders = ["ASC", "DESC"];
+
+    if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
+      throw new Error("Invalid sorting parameters");
+    }
+
+    const query = `SELECT * FROM projects WHERE deleted = 1 ORDER BY ${sortBy} ${sortOrder}`;
+    const rows = db.prepare(query).all();
+
+    return rows;
+  } catch (error) {
+    console.error("Fetch Deleted Error:", error);
+    return [];
+  }
+});
+
+// Restore an item from deleted
+ipcMain.handle("restoreDeletedRow", async (event, rowId) => {
+  try {
+    // Restore item by setting deleted = 0 and keeping archived status unchanged
+    const stmt = db.prepare("UPDATE projects SET deleted = 0 WHERE id = ?");
+    stmt.run(rowId);
+
+    // Fetch the item's archived status
+    const row = db.prepare("SELECT archived FROM projects WHERE id = ?").get(rowId);
+
+    return { success: true, archived: row.archived }; // Return archived status
+  } catch (error) {
     return { success: false, error: error.message };
   }
 });
@@ -105,15 +145,17 @@ ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   }
 });
 
+
 ipcMain.handle("getActiveRows", async () => {
   try {
-    const rows = db.prepare("SELECT * FROM projects WHERE archived = 0").all();
+    const rows = db.prepare("SELECT * FROM projects WHERE archived = 0 AND deleted = 0").all();
     return rows;
   } catch (error) {
     console.error("Fetch Active Error:", error);
     return [];
   }
 });
+
 
 ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {

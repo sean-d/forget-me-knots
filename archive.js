@@ -27,9 +27,10 @@ async function loadArchivedItems(sortBy, sortOrder) {
       <td>${row.quilted ? "✔" : "✘"}</td>
       <td>${row.bound ? "✔" : "✘"}</td>
       <td>${row.photographed ? "✔" : "✘"}</td>
-      <td>
-        <button class="restore" onclick="restoreRow(${row.id})">Restore</button>
-      </td>
+  <td>
+    <button class="restore" onclick="restoreRow(${row.id})">Restore</button>
+    <button class="delete" onclick="deleteRow(${row.id})">Delete</button>
+  </td>
     `;
         tableBody.appendChild(tr);
     });
@@ -45,5 +46,19 @@ async function restoreRow(rowId) {
         document.querySelector(`tr[data-id="${rowId}"]`)?.remove();
     } else {
         alert("Error restoring item: " + response.error);
+    }
+}
+
+async function deleteRow(rowId) {
+    const confirmDelete = confirm("Are you sure you wish to delete this archived item?");
+    if (!confirmDelete) return;
+
+    const response = await window.electronAPI.deleteRow(rowId);
+
+    if (response.success) {
+        alert("Item moved to Deleted Items!");
+        document.querySelector(`tr[data-id="${rowId}"]`)?.remove(); // Remove from UI
+    } else {
+        alert("Error deleting item: " + response.error);
     }
 }
