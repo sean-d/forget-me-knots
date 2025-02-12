@@ -22,31 +22,46 @@
       background-color: #f4f4f4;
     }
     button {
-      color: white;
-      border: none;
+      margin: 5px;
       padding: 8px 12px;
-      font-size: 14px;
+      border: none;
       cursor: pointer;
       border-radius: 4px;
-      transition: background-color 0.3s ease;
-      margin-bottom: 10px;
     }
-    .back {
+    .sort {
       background-color: #007bff;
+      color: white;
     }
-    .back:hover {
+    .sort:hover {
       background-color: #0056b3;
     }
-    .restore {
+    .back {
       background-color: #28a745;
+      color: white;
+    }
+    .back:hover {
+      background-color: #218838;
+    }
+    .restore {
+      background-color: #ff5733;
+      color: white;
     }
     .restore:hover {
-      background-color: #218838;
+      background-color: #c70000;
     }
   </style>
 </head>
 <body>
+
 <h1>Archived Projects</h1>
+
+<!-- Sorting Buttons -->
+<div>
+  <button class="sort" onclick="loadArchivedItems('completed_date', 'ASC')">Sort by Date ↑</button>
+  <button class="sort" onclick="loadArchivedItems('completed_date', 'DESC')">Sort by Date ↓</button>
+  <button class="sort" onclick="loadArchivedItems('project_name', 'ASC')">Sort by Name A-Z</button>
+  <button class="sort" onclick="loadArchivedItems('project_name', 'DESC')">Sort by Name Z-A</button>
+</div>
 
 <table>
   <thead>
@@ -73,5 +88,6 @@
 <button class="back" onclick="window.location.href='index.html'">Go Back Home</button>
 
 <script src="archive.js"></script>
+
 </body>
 </html>

@@ -105,23 +105,32 @@ ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   }
 });
 
-
-ipcMain.handle("getArchivedRows", async () => {
-  try {
-    const rows = db.prepare("SELECT * FROM projects WHERE archived = 1").all();
-    return rows;
-  } catch (error) {
-    console.error("Fetch Archived Error:", error);
-    return [];
-  }
-});
-
 ipcMain.handle("getActiveRows", async () => {
   try {
     const rows = db.prepare("SELECT * FROM projects WHERE archived = 0").all();
     return rows;
   } catch (error) {
     console.error("Fetch Active Error:", error);
+    return [];
+  }
+});
+
+ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
+  try {
+    const validColumns = ["completed_date", "project_name"];
+    const validOrders = ["ASC", "DESC"];
+
+    // Prevent SQL Injection: Ensure valid column and order
+    if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
+      throw new Error("Invalid sorting parameters");
+    }
+
+    const query = `SELECT * FROM projects WHERE archived = 1 ORDER BY ${sortBy} ${sortOrder}`;
+    const rows = db.prepare(query).all();
+
+    return rows;
+  } catch (error) {
+    console.error("Fetch Archived Error:", error);
     return [];
   }
 });

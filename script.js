@@ -113,25 +113,25 @@ async function saveRow(button) {
   }
 }
 
-
 async function deleteRow(button) {
   const row = button.closest("tr");
   const rowId = row.dataset.id; // Get row ID
 
+  // Always ask for confirmation before deleting
+  const confirmDelete = confirm("Are you sure you wish to delete this?");
+  if (!confirmDelete) return;
+
   if (!rowId) {
-    alert("This item hasn't been saved yet.");
-    row.remove(); // Remove unsaved row from UI
+    // If row is not saved, just remove it from the UI
+    row.remove();
     return;
   }
 
-  const confirmDelete = confirm("Are you sure you want to delete this item?");
-  if (!confirmDelete) return;
-
-  // Send delete request to the Electron main process
+  // If row is saved, delete it from the database
   const response = await window.electronAPI.deleteRow(rowId);
 
   if (response.success) {
-    row.remove(); // Remove row from UI after successful deletion from DB
+    row.remove(); // Remove row from UI
     alert("Item deleted successfully!");
   } else {
     alert("Error deleting item: " + response.error);
@@ -141,10 +141,19 @@ async function deleteRow(button) {
 async function loadActiveItems() {
   const tableBody = document.querySelector("table tbody");
 
+  if (!tableBody) {
+    console.error("Table body not found!");
+    return;
+  }
+
   // Fetch active (non-archived) items from the database
   const activeRows = await window.electronAPI.getActiveRows();
 
-  // Clear only the table rows, NOT the header
+  if (!activeRows.length) {
+    console.log("No active items found.");
+  }
+
+  // Clear only rows, keeping the header
   tableBody.innerHTML = `
     <tr>
       <th>Completed Date</th>
@@ -162,7 +171,7 @@ async function loadActiveItems() {
     </tr>
   `;
 
-  // Re-populate table with active items
+  // Populate table with active items
   activeRows.forEach((row) => {
     const tr = document.createElement("tr");
     tr.dataset.id = row.id;
@@ -187,6 +196,9 @@ async function loadActiveItems() {
     tableBody.appendChild(tr);
   });
 }
+
+// Load active items when the page loads
+document.addEventListener("DOMContentLoaded", loadActiveItems);
 
 // Load active items when the page loads
 document.addEventListener("DOMContentLoaded", loadActiveItems);
