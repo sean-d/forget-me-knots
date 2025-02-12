@@ -19,5 +19,8 @@
   "homepage": "https://github.com/sean-d/forget-me-knots#readme",
   "devDependencies": {
     "electron": "^34.1.1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1"
   }
 }
