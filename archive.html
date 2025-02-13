@@ -62,20 +62,12 @@
 
 <h1>zee archives...</h1>
 
-<!-- Sorting Buttons -->
-<div>
-  <button class="sort" onclick="loadArchivedItems('completed_date', 'ASC')">Sort by Date ↑</button>
-  <button class="sort" onclick="loadArchivedItems('completed_date', 'DESC')">Sort by Date ↓</button>
-  <button class="sort" onclick="loadArchivedItems('project_name', 'ASC')">Sort by Name A-Z</button>
-  <button class="sort" onclick="loadArchivedItems('project_name', 'DESC')">Sort by Name Z-A</button>
-</div>
-
 <table>
   <thead>
   <tr>
-    <th>Start Date</th>
-    <th>Completed Date</th>
-    <th>Project Name</th>
+    <th><button onclick="sortArchive('date_started')">Start Date</button></th>
+    <th><button onclick="sortArchive('completed_date')">Completed Date</button></th>
+    <th><button onclick="sortArchive('project_name')">Project Name</button></th>
     <th>Fabric Chosen</th>
     <th>Cut</th>
     <th>Pieced</th>
@@ -89,7 +81,7 @@
   </tr>
   </thead>
   <tbody id="archive-table">
-  <!-- Archived rows will be inserted here -->
+  <!-- Archived rows will be inserted here dynamically -->
   </tbody>
 </table>
 
