@@ -9,19 +9,21 @@ const db = new Database("fmk.db");
 db.exec(`
 CREATE TABLE IF NOT EXISTS projects (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  date_started TEXT,
   completed_date TEXT,
-  project_name TEXT,
-  fabric_chosen INTEGER,
-  cut INTEGER,
-  pieced INTEGER,
-  assembled INTEGER,
-  back_prepped INTEGER,
-  basted INTEGER,
-  quilted INTEGER,
-  bound INTEGER,
-  photographed INTEGER,
+  project_name TEXT NOT NULL,
+  fabric_chosen INTEGER DEFAULT 0,
+  cut INTEGER DEFAULT 0,
+  pieced INTEGER DEFAULT 0,
+  assembled INTEGER DEFAULT 0,
+  back_prepped INTEGER DEFAULT 0,
+  basted INTEGER DEFAULT 0,
+  quilted INTEGER DEFAULT 0,
+  bound INTEGER DEFAULT 0,
+  photographed INTEGER DEFAULT 0,
   archived INTEGER DEFAULT 0,
-  deleted INTEGER DEFAULT 0
+  deleted INTEGER DEFAULT 0,
+  position INTEGER DEFAULT 0
 )
 `);
 
@@ -42,43 +44,40 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 
-ipcMain.handle("saveRow", async (event, rowData) => {
+ipcMain.handle("saveRow", async (event, data) => {
   try {
-    const values = [
-      rowData.completedDate || null,
-      rowData.projectName || null,
-      Number(rowData.fabricChosen) || 0,
-      Number(rowData.cut) || 0,
-      Number(rowData.pieced) || 0,
-      Number(rowData.assembled) || 0,
-      Number(rowData.backPrepped) || 0,
-      Number(rowData.basted) || 0,
-      Number(rowData.quilted) || 0,
-      Number(rowData.bound) || 0,
-      Number(rowData.photographed) || 0,
-      0, // Default archived = 0 (not archived)
-    ];
-
-    if (rowData.id) {
+    if (data.id) {
       const stmt = db.prepare(`
-        UPDATE projects 
-        SET completed_date = ?, project_name = ?, fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?, 
-            back_prepped = ?, basted = ?, quilted = ?, bound = ?, photographed = ?, archived = ?
+        UPDATE projects SET
+                          date_started = ?, completed_date = ?, project_name = ?,
+                          fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
+                          back_prepped = ?, basted = ?, quilted = ?, bound = ?, photographed = ?
         WHERE id = ?
       `);
-      stmt.run(...values, rowData.id);
-      return { success: true, id: rowData.id };
+      stmt.run(
+          data.dateStarted, data.completedDate, data.projectName,
+          data.fabricChosen, data.cut, data.pieced, data.assembled,
+          data.backPrepped, data.basted, data.quilted, data.bound, data.photographed,
+          data.id
+      );
+      return { success: true, id: data.id };
     } else {
       const stmt = db.prepare(`
-        INSERT INTO projects (completed_date, project_name, fabric_chosen, cut, pieced, assembled, 
-                              back_prepped, basted, quilted, bound, photographed, archived)
+        INSERT INTO projects
+        (date_started, completed_date, project_name, fabric_chosen, cut, pieced, assembled,
+         back_prepped, basted, quilted, bound, photographed)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      const info = stmt.run(...values);
-      return { success: true, id: info.lastInsertRowid };
+      const result = stmt.run(
+          data.dateStarted, data.completedDate, data.projectName,
+          data.fabricChosen, data.cut, data.pieced, data.assembled,
+          data.backPrepped, data.basted, data.quilted, data.bound, data.photographed
+      );
+
+      return { success: true, id: result.lastInsertRowid };
     }
   } catch (error) {
-    console.error("Database Error:", error);
+    console.error("Save Error:", error);
     return { success: false, error: error.message };
   }
 });
@@ -145,10 +144,13 @@ ipcMain.handle("purgeDeletedRows", async () => {
   }
 });
 
+
 ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   try {
+
     const stmt = db.prepare("UPDATE projects SET archived = ? WHERE id = ?");
     stmt.run(isArchived ? 1 : 0, rowId);
+
     return { success: true };
   } catch (error) {
     console.error("Archive Error:", error);
@@ -170,7 +172,7 @@ ipcMain.handle("getActiveRows", async () => {
 
 ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {
-    const validColumns = ["completed_date", "project_name"];
+    const validColumns = ["date_started", "completed_date", "project_name"];
     const validOrders = ["ASC", "DESC"];
 
     // Prevent SQL Injection: Ensure valid column and order

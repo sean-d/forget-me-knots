@@ -16,6 +16,7 @@ async function loadArchivedItems(sortBy, sortOrder) {
         const tr = document.createElement("tr");
         tr.dataset.id = row.id;
         tr.innerHTML = `
+      <td>${row.date_started || "N/A"}</td>
       <td>${row.completed_date || "N/A"}</td>
       <td>${row.project_name || "N/A"}</td>
       <td>${row.fabric_chosen ? "✔" : "✘"}</td>
