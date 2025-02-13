@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     getActiveRows: () => ipcRenderer.invoke("getActiveRows"),
     getDeletedRows: (sortBy, sortOrder) => ipcRenderer.invoke("getDeletedRows", sortBy, sortOrder),
     restoreDeletedRow: (id) => ipcRenderer.invoke("restoreDeletedRow", id),
-    purgeDeletedRows: () => ipcRenderer.invoke("purgeDeletedRows"), // ✅ Add this
+    purgeDeletedRow: (id) => ipcRenderer.invoke("purgeDeletedRow", id),
+    purgeDeletedRows: () => ipcRenderer.invoke("purgeDeletedRows"),
 });

@@ -96,21 +96,30 @@ ipcMain.handle("deleteRow", async (event, rowId) => {
 });
 
 // Fetch all deleted items
-
-
 ipcMain.handle("getDeletedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {
-    const validColumns = ["completed_date", "project_name"];
+    const validColumns = [
+      "date_started", "completed_date", "project_name", "fabric_chosen",
+      "cut", "pieced", "assembled", "back_prepped", "basted",
+      "quilted", "bound", "photographed"
+    ];
     const validOrders = ["ASC", "DESC"];
 
     if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
-      throw new Error("Invalid sorting parameters");
+      sortBy = "completed_date"; // Default fallback
+      sortOrder = "DESC";
     }
 
-    const query = `SELECT * FROM projects WHERE deleted = 1 ORDER BY ${sortBy} ${sortOrder}`;
-    const rows = db.prepare(query).all();
+    const query = `
+      SELECT id, date_started, completed_date, project_name,
+             fabric_chosen, cut, pieced, assembled, back_prepped,
+             basted, quilted, bound, photographed
+      FROM projects
+      WHERE deleted = 1
+      ORDER BY ${sortBy} ${sortOrder}
+    `;
 
-    return rows;
+    return db.prepare(query).all();
   } catch (error) {
     console.error("Fetch Deleted Error:", error);
     return [];
@@ -139,11 +148,22 @@ ipcMain.handle("purgeDeletedRows", async () => {
     stmt.run();
     return { success: true };
   } catch (error) {
-    console.error("Purge Error:", error);
+    console.error("Purge All Error:", error);
     return { success: false, error: error.message };
   }
 });
 
+ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
+  try {
+    const stmt = db.prepare("DELETE FROM projects WHERE id = ?");
+    stmt.run(rowId);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Purge Error:", error);
+    return { success: false, error: error.message };
+  }
+});
 
 ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   try {
@@ -172,18 +192,28 @@ ipcMain.handle("getActiveRows", async () => {
 
 ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {
-    const validColumns = ["date_started", "completed_date", "project_name"];
+    const validColumns = [
+      "date_started", "completed_date", "project_name", "fabric_chosen",
+      "cut", "pieced", "assembled", "back_prepped", "basted",
+      "quilted", "bound", "photographed"
+    ];
     const validOrders = ["ASC", "DESC"];
 
-    // Prevent SQL Injection: Ensure valid column and order
     if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
-      throw new Error("Invalid sorting parameters");
+      sortBy = "completed_date"; // Default fallback
+      sortOrder = "DESC";
     }
 
-    const query = `SELECT * FROM projects WHERE archived = 1 ORDER BY ${sortBy} ${sortOrder}`;
-    const rows = db.prepare(query).all();
+    const query = `
+      SELECT id, date_started, completed_date, project_name,
+             fabric_chosen, cut, pieced, assembled, back_prepped,
+             basted, quilted, bound, photographed
+      FROM projects
+      WHERE archived = 1
+      ORDER BY ${sortBy} ${sortOrder}
+    `;
 
-    return rows;
+    return db.prepare(query).all();
   } catch (error) {
     console.error("Fetch Archived Error:", error);
     return [];

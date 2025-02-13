@@ -6,42 +6,77 @@
     <title>Deleted Items</title>
     <script defer src="deleted.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f4f4f4; }
-        button { padding: 5px 10px; cursor: pointer; }
-        .restore { background-color: #28a745; color: white; }
-        .restore:hover { background-color: #218838; }
-        .back { background-color: #007bff; color: white; }
-        .back:hover { background-color: #0056b3; }
-        .sort { background-color: #ff9800; color: white; }
-        .sort:hover { background-color: #e68a00; }
-        .purge { background-color: #ff0000; color: white; }
-        .purge:hover { background-color: #8b0000; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .back {
+            background-color: #28a745;
+            color: white;
+        }
+        .back:hover {
+            background-color: #218838;
+        }
+        .restore {
+            background-color: #ff5733;
+            color: white;
+        }
+        .restore:hover {
+            background-color: #c70000;
+        }
+        .delete {
+            background-color: #ff5733;
+            color: white;
+        }
+        .delete:hover {
+            background-color: #c70000;
+        }
     </style>
 </head>
 <body>
 
-<h1>Deleted Items</h1>
-
-<!-- Sorting Buttons -->
-<div>
-    <button class="sort" onclick="loadDeletedItems('completed_date', 'ASC')">Sort by Date ↑</button>
-    <button class="sort" onclick="loadDeletedItems('completed_date', 'DESC')">Sort by Date ↓</button>
-    <button class="sort" onclick="loadDeletedItems('project_name', 'ASC')">Sort by Name A-Z</button>
-    <button class="sort" onclick="loadDeletedItems('project_name', 'DESC')">Sort by Name Z-A</button>
-</div>
+<h1>recycle bin</h1>
 
 <table>
     <thead>
     <tr>
-        <th>Completed Date</th>
-        <th>Project Name</th>
+        <th><button onclick="sortDeleted('date_started')">Start Date</button></th>
+        <th><button onclick="sortDeleted('completed_date')">Completed Date</button></th>
+        <th><button onclick="sortDeleted('project_name')">Project Name</button></th>
+        <th>Fabric Chosen</th>
+        <th>Cut</th>
+        <th>Pieced</th>
+        <th>Assembled</th>
+        <th>Back Prepped</th>
+        <th>Basted</th>
+        <th>Quilted</th>
+        <th>Bound</th>
+        <th>Photographed</th>
         <th>Actions</th>
     </tr>
     </thead>
-    <tbody id="deleted-table"></tbody>
+    <tbody id="deleted-table">
+    <!-- Deleted rows will be inserted here dynamically -->
+    </tbody>
 </table>
 
 <button class="back" onclick="window.location.href='index.html'">home...</button>
