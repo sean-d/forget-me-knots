@@ -13,12 +13,16 @@ function sortArchive(column) {
         currentSortColumn = column;
         currentSortOrder = "ASC"; // Default to ascending when switching column
     }
-    loadArchivedItems(); // Reload with new sorting
+    loadArchivedItems(currentSortColumn, currentSortOrder); // Reload with new sorting
 }
 
 async function loadArchivedItems(sortBy = "completed_date", sortOrder = "DESC") {
     const tableBody = document.getElementById("archive-table");
-    if (!tableBody) return;
+
+    if (!tableBody) {
+        console.error("Table body not found!");
+        return;
+    }
 
     try {
         const archivedRows = await window.electronAPI.getArchivedRows(sortBy, sortOrder);
@@ -32,24 +36,27 @@ async function loadArchivedItems(sortBy = "completed_date", sortOrder = "DESC") 
         archivedRows.forEach((row) => {
             const tr = document.createElement("tr");
             tr.dataset.id = row.id;
+
+            if (row.important) tr.classList.add("important");
+
             tr.innerHTML = `
-                <td>${row.date_started || "N/A"}</td>
-                <td>${row.completed_date || "N/A"}</td>
-                <td>${row.project_name || "N/A"}</td>
-                <td>${row.fabric_chosen ? "✔" : "✘"}</td>
-                <td>${row.cut ? "✔" : "✘"}</td>
-                <td>${row.pieced ? "✔" : "✘"}</td>
-                <td>${row.assembled ? "✔" : "✘"}</td>
-                <td>${row.back_prepped ? "✔" : "✘"}</td>
-                <td>${row.basted ? "✔" : "✘"}</td>
-                <td>${row.quilted ? "✔" : "✘"}</td>
-                <td>${row.bound ? "✔" : "✘"}</td>
-                <td>${row.photographed ? "✔" : "✘"}</td>
-                <td>
-                    <button class="restore" onclick="restoreRow(${row.id})">Restore</button>
-                    <button class="delete" onclick="deleteRow(${row.id})">Delete</button>
-                </td>
-            `;
+        <td>${row.date_started || "N/A"}</td>
+        <td>${row.completed_date || "N/A"}</td>
+        <td>${row.project_name || "N/A"}</td>
+        <td>${row.fabric_chosen ? "✔" : "✘"}</td>
+        <td>${row.cut ? "✔" : "✘"}</td>
+        <td>${row.pieced ? "✔" : "✘"}</td>
+        <td>${row.assembled ? "✔" : "✘"}</td>
+        <td>${row.back_prepped ? "✔" : "✘"}</td>
+        <td>${row.basted ? "✔" : "✘"}</td>
+        <td>${row.quilted ? "✔" : "✘"}</td>
+        <td>${row.bound ? "✔" : "✘"}</td>
+        <td>${row.photographed ? "✔" : "✘"}</td>
+        <td>
+          <button class="restore" onclick="restoreRow(${row.id})">Restore</button>
+          <button class="delete" onclick="deleteRow(${row.id})">Delete</button>
+        </td>
+      `;
             tableBody.appendChild(tr);
         });
     } catch (error) {
