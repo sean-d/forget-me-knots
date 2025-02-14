@@ -192,7 +192,7 @@ async function loadActiveItems() {
       </td>
       <td><input type="date" value="${row.date_started || ""}" /></td>
       <td><input type="date" value="${row.completed_date || ""}" /></td>
-      <td><textarea>${row.project_name || ""}</textarea></td>
+      <td><textarea class="project-name">${row.project_name || ""}</textarea></td>
       <td><input type="checkbox" ${row.fabric_chosen ? "checked" : ""} /></td>
       <td><input type="checkbox" ${row.cut ? "checked" : ""} /></td>
       <td><input type="checkbox" ${row.pieced ? "checked" : ""} /></td>
@@ -203,9 +203,9 @@ async function loadActiveItems() {
       <td><input type="checkbox" ${row.bound ? "checked" : ""} /></td>
       <td><input type="checkbox" ${row.photographed ? "checked" : ""} /></td>
       <td>
+        <button class="save" onclick="saveRow(this)">Save</button>
         <button class="done" onclick="markAsDone(this)">Done</button>
         <button class="delete" onclick="deleteRow(this)">Delete</button>
-        <button class="save" onclick="saveRow(this)">Save</button>
       </td>
     `;
     tableBody.appendChild(tr);
@@ -247,14 +247,3 @@ async function toggleImportant(event, rowId) {
   // Save to the database
   await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
 }
-
-// Allow double-clicking a row to mark it as important
-document.addEventListener("dblclick", (event) => {
-  const row = event.target.closest("tr");
-  if (!row) return;
-
-  const rowId = row.dataset.id;
-  if (!rowId) return;
-
-  toggleImportant(event, rowId);
-});

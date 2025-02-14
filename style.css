@@ -6,7 +6,7 @@ body {
     button {
         color: white;
         border: none;
-        margin: 5px;
+        /*margin: 5px;*/
         padding: 8px 12px;
         font-size: 14px;
         cursor: pointer;
@@ -81,6 +81,7 @@ body {
     table {
         width: 100%;
         border-collapse: collapse;
+
     }
 
     th,
@@ -88,6 +89,7 @@ body {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: center;
+
     }
     th {
         background-color: #f4f4f4;
@@ -99,12 +101,14 @@ body {
 
     textarea {
         width: 100%;
-        height: 60px;
+        max-width: 220px;
+        height: 30px;
+        font-size: 14px;
         resize: vertical;
     }
 
     textarea.project-name {
-        width: 200px;
+        width: 300px;
         height: 30px;
         font-size: 14px;
     }

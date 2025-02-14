@@ -30,7 +30,7 @@ db.exec(`
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1500,
+    width: 1675,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // Using preload for security
@@ -50,10 +50,10 @@ ipcMain.handle("saveRow", async (event, data) => {
     if (data.id) {
       const stmt = db.prepare(`
         UPDATE projects SET
-                          date_started = ?, completed_date = ?, project_name = ?,
-                          fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
-                          back_prepped = ?, basted = ?, quilted = ?, bound = ?,
-                          photographed = ?, important = ?
+          date_started = ?, completed_date = ?, project_name = ?,
+          fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
+          back_prepped = ?, basted = ?, quilted = ?, bound = ?,
+          photographed = ?, important = ?
         WHERE id = ?
       `);
       stmt.run(
@@ -186,8 +186,8 @@ ipcMain.handle("getActiveRows", async () => {
   try {
     const query = `
       SELECT id, date_started, completed_date, project_name, 
-             fabric_chosen, cut, pieced, assembled, back_prepped, 
-             basted, quilted, bound, photographed, important
+       fabric_chosen, cut, pieced, assembled, back_prepped, 
+       basted, quilted, bound, photographed, important
       FROM projects 
       WHERE archived = 0 AND deleted = 0
     `;
