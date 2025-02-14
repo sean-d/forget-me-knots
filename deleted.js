@@ -52,8 +52,8 @@ async function loadDeletedItems(sortBy = "completed_date", sortOrder = "DESC") {
         <td>${row.bound ? "✔" : "✘"}</td>
         <td>${row.photographed ? "✔" : "✘"}</td>
         <td>
-          <button class="restore" onclick="restoreDeletedRow(${row.id})">Restore</button>
-          <button class="purge" onclick="purgeRow(${row.id})">Purge</button>
+          <button class="done" onclick="restoreDeletedRow(${row.id})">Restore</button>
+          <button class="delete" onclick="purgeRow(${row.id})">Delete</button>
         </td>
       `;
             tableBody.appendChild(tr);

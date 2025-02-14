@@ -53,7 +53,7 @@ async function loadArchivedItems(sortBy = "completed_date", sortOrder = "DESC") 
         <td>${row.bound ? "✔" : "✘"}</td>
         <td>${row.photographed ? "✔" : "✘"}</td>
         <td>
-          <button class="restore" onclick="restoreRow(${row.id})">Restore</button>
+          <button class="done" onclick="restoreRow(${row.id})">Restore</button>
           <button class="delete" onclick="deleteRow(${row.id})">Delete</button>
         </td>
       `;

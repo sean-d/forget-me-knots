@@ -4,105 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>forget my knots index</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-      }
-      th {
-        background-color: #f4f4f4;
-      }
-      input[type="date"] {
-        width: 100%;
-      }
-      textarea {
-        width: 100%;
-        height: 60px;
-        resize: vertical; /* Allows vertical resizing */
-      }
-      button {
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-      }
-
-      /* Add button - Orange */
-      button.add {
-        background-color: #aa5;
-      }
-
-      button.add:hover {
-        background-color: #bb9;
-      }
-
-      /* Done button - Green */
-      button.done {
-        background-color: #28a745;
-      }
-
-      button.done:hover {
-        background-color: #1e7e34;
-      }
-
-      /* Un-done button - Light Blue */
-      button.un-done {
-        background-color: #17a2b8;
-      }
-
-      button.un-done:hover {
-        background-color: #117a8b;
-      }
-
-      /* Delete button - Red */
-      button.delete {
-        background-color: #dc3545;
-      }
-
-      button.delete:hover {
-        background-color: #a71d2a;
-      }
-      /* Save button - Red */
-      button.save {
-        background-color: #ff9900;
-      }
-
-      button.save:hover {
-        background-color: #a71d2a;
-      }
-
-      /* Add button - Orange */
-      button.archive {
-        background-color: #aa5;
-      }
-
-      button.archive:hover {
-        background-color: #bb9;
-      }
-
-      /* recycle bin button - Red */
-      button.deleted {
-        background-color: #ff9900;
-      }
-
-      button.deleted:hover {
-        background-color: #a71d2a;
-      }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <table>
@@ -137,15 +39,15 @@
         <td><input type="checkbox" /></td>
 
         <td>
+          <button class="save" onclick="saveRow(this)">save</button>
           <button class="done" onclick="markAsDone(this)">done</button>
           <button class="delete" onclick="deleteRow(this)">delete</button>
-          <button class="save" onclick="saveRow(this)">save</button>
         </td>
       </tr>
     </table>
     <button class="add" onclick="addRow()">add...</button>
     <button class="archive" onclick="window.location.href='archive.html'">zee archives...</button>
-    <button class="deleted" onclick="window.location.href='deleted.html'">recycle bin...</button>
+    <button class="gobin" onclick="window.location.href='deleted.html'">recycle bin...</button>
 
     <script src="script.js"></script>
   </body>

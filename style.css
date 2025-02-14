@@ -1,0 +1,121 @@
+body {
+
+    font-family: Arial, sans-serif;
+    margin: 20px;
+
+    button {
+        color: white;
+        border: none;
+        margin: 5px;
+        padding: 8px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    button.add {
+        background-color: #aa5;
+    }
+
+    button.add:hover {
+        background-color: #bb9;
+    }
+
+    button.gohome {
+        background-color: #aa5;
+    }
+
+    button.gohome:hover {
+        background-color: #bb9;
+    }
+
+    button.archive {
+        background-color: #aa5;
+    }
+
+    button.archive:hover {
+        background-color: #bb9;
+    }
+
+    button.gobin {
+        background-color: #aa5;
+    }
+
+    button.gobin:hover {
+        background-color: #bb9;
+    }
+
+    button.done {
+        background-color: #28a745;
+    }
+
+    button.done:hover {
+        background-color: #1e7e34
+    }
+
+    button.delete {
+        background-color: #dc3545;
+    }
+
+    button.delete:hover {
+        background-color: #8b0000
+    }
+
+    button.save {
+        background-color: #ff9900;
+    }
+
+    button.save:hover {
+        background-color: #ff8c00;
+    }
+
+    button.sorted {
+        background-color: #ff9900;
+    }
+
+    button.sorted:hover {
+        background-color: #a71
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background-color: #f4f4f4;
+    }
+
+    input[type="date"] {
+        width: 100%;
+    }
+
+    textarea {
+        width: 100%;
+        height: 60px;
+        resize: vertical;
+    }
+
+    textarea.project-name {
+        width: 200px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .important {
+        background-color: #fffa90 !important;
+        border: 2px solid #ffcc00 !important;
+    }
+}
+
+
+
+
+

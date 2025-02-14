@@ -1,35 +1,3 @@
-// Inject CSS styles dynamically
-const style = document.createElement("style");
-style.innerHTML = `
-  input[type="date"] {
-    width: 140px;
-    padding: 4px;
-    font-size: 14px;
-  }
-  textarea.project-name {
-    width: 200px;
-    height: 30px;
-    font-size: 14px;
-  }
-  button {
-    padding: 5px 10px;
-    margin: 2px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .done { background-color: #28a745; color: white; border: none; }
-  .delete { background-color: #dc3545; color: white; border: none; }
-  .save { background-color: #007bff; color: white; border: none; }
-
-  .important {
-    background-color: #fffa90 !important; /* Light yellow background */
-    border: 2px solid #ffcc00 !important; /* Bold yellow border */
-  }
-\`;
-document.head.appendChild(style);
-`;
-document.head.appendChild(style);
-
 function addRow() {
   const table = document.querySelector("table tbody"); // Ensure tbody is targeted
   const newRow = table.insertRow();
@@ -51,9 +19,10 @@ function addRow() {
     <td><input type="checkbox" class="bound" /></td>
     <td><input type="checkbox" class="photographed" /></td>
     <td>
+      <button class="save">Save</button>
       <button class="done">Done</button> 
       <button class="delete">Delete</button>
-      <button class="save">Save</button>
+
     </td>
   `;
 

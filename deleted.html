@@ -3,54 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deleted Items</title>
+    <title>recycling bin</title>
     <script defer src="deleted.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        button {
-            margin: 5px;
-            padding: 8px 12px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .back {
-            background-color: #28a745;
-            color: white;
-        }
-        .back:hover {
-            background-color: #218838;
-        }
-        .restore {
-            background-color: #ff5733;
-            color: white;
-        }
-        .restore:hover {
-            background-color: #c70000;
-        }
-        .delete {
-            background-color: #ff5733;
-            color: white;
-        }
-        .delete:hover {
-            background-color: #c70000;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -59,9 +14,9 @@
 <table>
     <thead>
     <tr>
-        <th><button onclick="sortDeleted('date_started')">Start Date</button></th>
-        <th><button onclick="sortDeleted('completed_date')">Completed Date</button></th>
-        <th><button onclick="sortDeleted('project_name')">Project Name</button></th>
+        <th><button class="sorted" onclick="sortDeleted('date_started')">Start Date</button></th>
+        <th><button class="sorted" onclick="sortDeleted('completed_date')">Completed Date</button></th>
+        <th><button class="sorted" onclick="sortDeleted('project_name')">Project Name</button></th>
         <th>Fabric Chosen</th>
         <th>Cut</th>
         <th>Pieced</th>
@@ -79,9 +34,9 @@
     </tbody>
 </table>
 
-<button class="back" onclick="window.location.href='index.html'">home...</button>
-<button class="back" onclick="window.location.href='archive.html'">zee archives...</button>
-<button class="purge" onclick="purgeDeletedItems()">THE PURGENING</button>
+<button class="gohome" onclick="window.location.href='index.html'">home...</button>
+<button class="archive" onclick="window.location.href='archive.html'">zee archives...</button>
+<button class="delete" onclick="purgeDeletedItems()">delete everything...</button>
 
 </body>
 </html>
