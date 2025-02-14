@@ -7,29 +7,30 @@ const db = new Database("fmk.db");
 
 // Ensure table is created
 db.exec(`
-CREATE TABLE IF NOT EXISTS projects (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  date_started TEXT,
-  completed_date TEXT,
-  project_name TEXT NOT NULL,
-  fabric_chosen INTEGER DEFAULT 0,
-  cut INTEGER DEFAULT 0,
-  pieced INTEGER DEFAULT 0,
-  assembled INTEGER DEFAULT 0,
-  back_prepped INTEGER DEFAULT 0,
-  basted INTEGER DEFAULT 0,
-  quilted INTEGER DEFAULT 0,
-  bound INTEGER DEFAULT 0,
-  photographed INTEGER DEFAULT 0,
-  archived INTEGER DEFAULT 0,
-  deleted INTEGER DEFAULT 0,
-  position INTEGER DEFAULT 0
+  CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date_started TEXT,
+    completed_date TEXT,
+    project_name TEXT NOT NULL,
+    fabric_chosen INTEGER DEFAULT 0,
+    cut INTEGER DEFAULT 0,
+    pieced INTEGER DEFAULT 0,
+    assembled INTEGER DEFAULT 0,
+    back_prepped INTEGER DEFAULT 0,
+    basted INTEGER DEFAULT 0,
+    quilted INTEGER DEFAULT 0,
+    bound INTEGER DEFAULT 0,
+    photographed INTEGER DEFAULT 0,
+    archived INTEGER DEFAULT 0,
+    deleted INTEGER DEFAULT 0,
+    position INTEGER DEFAULT 0,
+    important INTEGER DEFAULT 0
 )
 `);
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1400,
+    width: 1500,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // Using preload for security
@@ -51,27 +52,29 @@ ipcMain.handle("saveRow", async (event, data) => {
         UPDATE projects SET
                           date_started = ?, completed_date = ?, project_name = ?,
                           fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
-                          back_prepped = ?, basted = ?, quilted = ?, bound = ?, photographed = ?
+                          back_prepped = ?, basted = ?, quilted = ?, bound = ?,
+                          photographed = ?, important = ?
         WHERE id = ?
       `);
       stmt.run(
           data.dateStarted, data.completedDate, data.projectName,
           data.fabricChosen, data.cut, data.pieced, data.assembled,
-          data.backPrepped, data.basted, data.quilted, data.bound, data.photographed,
-          data.id
+          data.backPrepped, data.basted, data.quilted, data.bound,
+          data.photographed, data.important, data.id
       );
       return { success: true, id: data.id };
     } else {
       const stmt = db.prepare(`
         INSERT INTO projects
         (date_started, completed_date, project_name, fabric_chosen, cut, pieced, assembled,
-         back_prepped, basted, quilted, bound, photographed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         back_prepped, basted, quilted, bound, photographed, important)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       const result = stmt.run(
           data.dateStarted, data.completedDate, data.projectName,
           data.fabricChosen, data.cut, data.pieced, data.assembled,
-          data.backPrepped, data.basted, data.quilted, data.bound, data.photographed
+          data.backPrepped, data.basted, data.quilted, data.bound,
+          data.photographed, data.important
       );
 
       return { success: true, id: result.lastInsertRowid };
@@ -181,7 +184,14 @@ ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
 
 ipcMain.handle("getActiveRows", async () => {
   try {
-    const rows = db.prepare("SELECT * FROM projects WHERE archived = 0 AND deleted = 0").all();
+    const query = `
+      SELECT id, date_started, completed_date, project_name, 
+             fabric_chosen, cut, pieced, assembled, back_prepped, 
+             basted, quilted, bound, photographed, important
+      FROM projects 
+      WHERE archived = 0 AND deleted = 0
+    `;
+    const rows = db.prepare(query).all();
     return rows;
   } catch (error) {
     console.error("Fetch Active Error:", error);
@@ -217,6 +227,17 @@ ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortO
   } catch (error) {
     console.error("Fetch Archived Error:", error);
     return [];
+  }
+});
+
+ipcMain.handle("markImportant", async (event, rowId, isImportant) => {
+  try {
+    const stmt = db.prepare("UPDATE projects SET important = ? WHERE id = ?");
+    stmt.run(isImportant, rowId);
+    return { success: true };
+  } catch (error) {
+    console.error("Important Row Error:", error);
+    return { success: false, error: error.message };
   }
 });
 

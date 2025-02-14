@@ -20,42 +20,53 @@ style.innerHTML = `
   .done { background-color: #28a745; color: white; border: none; }
   .delete { background-color: #dc3545; color: white; border: none; }
   .save { background-color: #007bff; color: white; border: none; }
+
+  .important {
+    background-color: #fffa90 !important; /* Light yellow background */
+    border: 2px solid #ffcc00 !important; /* Bold yellow border */
+  }
+\`;
+document.head.appendChild(style);
 `;
 document.head.appendChild(style);
 
 function addRow() {
-  const table = document.querySelector("table");
+  const table = document.querySelector("table tbody"); // Ensure tbody is targeted
   const newRow = table.insertRow();
 
-  const cells = [
-    '<input type="date" class="date-started" />',  // Start Date
-    '<input type="date" class="date-completed" />', // Completed Date
-    "<textarea class='project-name'></textarea>",
-    '<input type="checkbox" class="fabric-chosen" />',
-    '<input type="checkbox" class="cut" />',
-    '<input type="checkbox" class="pieced" />',
-    '<input type="checkbox" class="assembled" />',
-    '<input type="checkbox" class="back-prepped" />',
-    '<input type="checkbox" class="basted" />',
-    '<input type="checkbox" class="quilted" />',
-    '<input type="checkbox" class="bound" />',
-    '<input type="checkbox" class="photographed" />',
-    `<button class="done" onclick="markAsDone(this)">done</button> 
-     <button class="delete" onclick="deleteRow(this)">delete</button>
-     <button class="save" onclick="saveRow(this)">save</button>`
-  ];
+  newRow.innerHTML = `
+    <td>
+      <input type="checkbox" class="important-checkbox" />
+    </td>
+    <td><input type="date" class="date-started" /></td>
+    <td><input type="date" class="date-completed" /></td>
+    <td><textarea class='project-name'></textarea></td>
+    <td><input type="checkbox" class="fabric-chosen" /></td>
+    <td><input type="checkbox" class="cut" /></td>
+    <td><input type="checkbox" class="pieced" /></td>
+    <td><input type="checkbox" class="assembled" /></td>
+    <td><input type="checkbox" class="back-prepped" /></td>
+    <td><input type="checkbox" class="basted" /></td>
+    <td><input type="checkbox" class="quilted" /></td>
+    <td><input type="checkbox" class="bound" /></td>
+    <td><input type="checkbox" class="photographed" /></td>
+    <td>
+      <button class="done">Done</button> 
+      <button class="delete">Delete</button>
+      <button class="save">Save</button>
+    </td>
+  `;
 
-  cells.forEach((cell, index) => {
-    const newCell = newRow.insertCell();
-    newCell.innerHTML = cell;
-
-    // Ensure buttons have correct styles
-    if (index === 12) {
-      const buttons = newCell.querySelectorAll("button");
-      buttons[0].classList.add("done"); // Green "done" button
-      buttons[1].classList.add("delete"); // Red "delete" button
-    }
+  // ✅ Add event listener to toggle background immediately
+  const importantCheckbox = newRow.querySelector(".important-checkbox");
+  importantCheckbox.addEventListener("click", (event) => {
+    newRow.classList.toggle("important", event.target.checked);
   });
+
+  // ✅ Add event listeners for buttons
+  newRow.querySelector(".done").addEventListener("click", () => markAsDone(newRow.querySelector(".done")));
+  newRow.querySelector(".delete").addEventListener("click", () => deleteRow(newRow.querySelector(".delete")));
+  newRow.querySelector(".save").addEventListener("click", () => saveRow(newRow.querySelector(".save")));
 }
 
 async function markAsDone(button) {
@@ -115,17 +126,17 @@ async function saveRow(button) {
     dateStarted: row.querySelector("input[type='date']").value,
     completedDate: row.querySelectorAll("input[type='date']")[1].value,
     projectName: projectName,
-    fabricChosen: Number(row.querySelectorAll("input[type='checkbox']")[0].checked),
-    cut: Number(row.querySelectorAll("input[type='checkbox']")[1].checked),
-    pieced: Number(row.querySelectorAll("input[type='checkbox']")[2].checked),
-    assembled: Number(row.querySelectorAll("input[type='checkbox']")[3].checked),
-    backPrepped: Number(row.querySelectorAll("input[type='checkbox']")[4].checked),
-    basted: Number(row.querySelectorAll("input[type='checkbox']")[5].checked),
-    quilted: Number(row.querySelectorAll("input[type='checkbox']")[6].checked),
-    bound: Number(row.querySelectorAll("input[type='checkbox']")[7].checked),
-    photographed: Number(row.querySelectorAll("input[type='checkbox']")[8].checked),
+    fabricChosen: Number(row.querySelectorAll("input[type='checkbox']")[1].checked),
+    cut: Number(row.querySelectorAll("input[type='checkbox']")[2].checked),
+    pieced: Number(row.querySelectorAll("input[type='checkbox']")[3].checked),
+    assembled: Number(row.querySelectorAll("input[type='checkbox']")[4].checked),
+    backPrepped: Number(row.querySelectorAll("input[type='checkbox']")[5].checked),
+    basted: Number(row.querySelectorAll("input[type='checkbox']")[6].checked),
+    quilted: Number(row.querySelectorAll("input[type='checkbox']")[7].checked),
+    bound: Number(row.querySelectorAll("input[type='checkbox']")[8].checked),
+    photographed: Number(row.querySelectorAll("input[type='checkbox']")[9].checked),
+    important: Number(row.querySelectorAll("input[type='checkbox']")[0].checked) // ✅ Added Important field
   };
-
 
   const response = await window.electronAPI.saveRow(data);
 
@@ -177,9 +188,10 @@ async function loadActiveItems() {
     console.log("No active items found.");
   }
 
-  // Clear only rows, keeping the header
+  // ✅ Ensure ALL correct headers are included
   tableBody.innerHTML = `
     <tr>
+      <th>Important</th>
       <th>Start Date</th>
       <th>Completed Date</th>
       <th>Project Name</th>
@@ -198,21 +210,19 @@ async function loadActiveItems() {
 
   // Populate table with active items
   activeRows.forEach((row) => {
-    console.log("Loading row ID:", row.id, "Project:", row.project_name); // Debugging line
-
     const tr = document.createElement("tr");
+    tr.dataset.id = row.id;
 
-    // Ensure the row has a valid ID (important for saving/updating)
-    if (!row.id) {
-      console.warn("Row is missing an ID:", row);
-      return; // Skip this row to prevent issues
-    }
-
-    tr.dataset.id = row.id; // Assign ID to dataset
+    // Apply "important" styling if row is marked
+    if (row.important) tr.classList.add("important");
 
     tr.innerHTML = `
-      <td><input type="date" value="${row.date_started || ""}" /></td>  <!-- Start Date -->
-      <td><input type="date" value="${row.completed_date || ""}" /></td> <!-- Completed Date -->
+      <td>
+        <input type="checkbox" ${row.important ? "checked" : ""} 
+          onclick="toggleImportant(event, ${row.id})" />
+      </td>
+      <td><input type="date" value="${row.date_started || ""}" /></td>
+      <td><input type="date" value="${row.completed_date || ""}" /></td>
       <td><textarea>${row.project_name || ""}</textarea></td>
       <td><input type="checkbox" ${row.fabric_chosen ? "checked" : ""} /></td>
       <td><input type="checkbox" ${row.cut ? "checked" : ""} /></td>
@@ -233,5 +243,49 @@ async function loadActiveItems() {
   });
 }
 
+async function toggleImportant(event, rowId) {
+  event.stopPropagation(); // Prevent row click from interfering
+
+  const row = event.target.closest("tr");
+  const isChecked = event.target.checked; // Get checkbox state
+
+  // ✅ Apply the "important" class immediately
+  if (isChecked) {
+    row.classList.add("important");
+  } else {
+    row.classList.remove("important");
+  }
+
+  // ✅ If rowId is null, it's a new row and should not try to update the database
+  if (!rowId) return;
+
+  // Save to the database if the row already has an ID
+  await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
+}
+
+
 // Load active items when the page loads
-document.addEventListener("DOMContentLoaded", loadActiveItems);
+document.addEventListener("DOMContentLoaded", () => {
+  loadActiveItems(); // Ensure items load when page opens
+});
+
+async function toggleImportant(event, rowId) {
+  event.stopPropagation(); // Prevent row click from interfering
+
+  const row = document.querySelector(`tr[data-id="${rowId}"]`);
+  const isChecked = row.classList.toggle("important"); // Toggle class
+
+  // Save to the database
+  await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
+}
+
+// Allow double-clicking a row to mark it as important
+document.addEventListener("dblclick", (event) => {
+  const row = event.target.closest("tr");
+  if (!row) return;
+
+  const rowId = row.dataset.id;
+  if (!rowId) return;
+
+  toggleImportant(event, rowId);
+});

@@ -5,13 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentSortColumn = "completed_date"; // Default sorting column
 let currentSortOrder = "DESC"; // Default sorting order
 
+function sortDeleted(column) {
+    if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === "ASC" ? "DESC" : "ASC"; // Toggle order
+    } else {
+        currentSortColumn = column;
+        currentSortOrder = "ASC"; // Default to ascending when switching column
+    }
+    loadDeletedItems(currentSortColumn, currentSortOrder); // Reload with new sorting
+}
+
 async function loadDeletedItems(sortBy = "completed_date", sortOrder = "DESC") {
     const tableBody = document.getElementById("deleted-table");
-    if (!tableBody) return;
+
+    if (!tableBody) {
+        console.error("Table body not found!");
+        return;
+    }
 
     try {
         const deletedRows = await window.electronAPI.getDeletedRows(sortBy, sortOrder);
-        tableBody.innerHTML = "";
+        tableBody.innerHTML = ""; // Clear table before repopulating
 
         if (!deletedRows || deletedRows.length === 0) {
             tableBody.innerHTML = "<tr><td colspan='13'>No deleted items found.</td></tr>";
@@ -21,24 +35,27 @@ async function loadDeletedItems(sortBy = "completed_date", sortOrder = "DESC") {
         deletedRows.forEach((row) => {
             const tr = document.createElement("tr");
             tr.dataset.id = row.id;
+
+            if (row.important) tr.classList.add("important");
+
             tr.innerHTML = `
-                <td>${row.date_started || "N/A"}</td>
-                <td>${row.completed_date || "N/A"}</td>
-                <td>${row.project_name || "N/A"}</td>
-                <td>${row.fabric_chosen ? "✔" : "✘"}</td>
-                <td>${row.cut ? "✔" : "✘"}</td>
-                <td>${row.pieced ? "✔" : "✘"}</td>
-                <td>${row.assembled ? "✔" : "✘"}</td>
-                <td>${row.back_prepped ? "✔" : "✘"}</td>
-                <td>${row.basted ? "✔" : "✘"}</td>
-                <td>${row.quilted ? "✔" : "✘"}</td>
-                <td>${row.bound ? "✔" : "✘"}</td>
-                <td>${row.photographed ? "✔" : "✘"}</td>
-                <td>
-                    <button class="restore" onclick="restoreDeletedRow(${row.id})">Restore</button>
-                    <button class="purge" onclick="purgeRow(${row.id})">Purge</button>
-                </td>
-            `;
+        <td>${row.date_started || "N/A"}</td>
+        <td>${row.completed_date || "N/A"}</td>
+        <td>${row.project_name || "N/A"}</td>
+        <td>${row.fabric_chosen ? "✔" : "✘"}</td>
+        <td>${row.cut ? "✔" : "✘"}</td>
+        <td>${row.pieced ? "✔" : "✘"}</td>
+        <td>${row.assembled ? "✔" : "✘"}</td>
+        <td>${row.back_prepped ? "✔" : "✘"}</td>
+        <td>${row.basted ? "✔" : "✘"}</td>
+        <td>${row.quilted ? "✔" : "✘"}</td>
+        <td>${row.bound ? "✔" : "✘"}</td>
+        <td>${row.photographed ? "✔" : "✘"}</td>
+        <td>
+          <button class="restore" onclick="restoreDeletedRow(${row.id})">Restore</button>
+          <button class="purge" onclick="purgeRow(${row.id})">Purge</button>
+        </td>
+      `;
             tableBody.appendChild(tr);
         });
     } catch (error) {
@@ -51,17 +68,6 @@ window.addEventListener("DOMContentLoaded", loadDeletedItems);
 
 // Load deleted items on page load
 window.addEventListener("DOMContentLoaded", loadDeletedItems);
-
-// Function to change sorting column & reload the table
-function sortDeleted(column) {
-    if (currentSortColumn === column) {
-        currentSortOrder = currentSortOrder === "ASC" ? "DESC" : "ASC"; // Toggle order
-    } else {
-        currentSortColumn = column;
-        currentSortOrder = "ASC"; // Default to ascending when switching column
-    }
-    loadDeletedItems(); // Reload with new sorting
-}
 
 // Restore deleted item
 async function restoreDeletedRow(rowId) {
