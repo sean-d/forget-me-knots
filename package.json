@@ -18,9 +18,21 @@
   },
   "homepage": "https://github.com/sean-d/forget-me-knots#readme",
   "devDependencies": {
-    "electron": "^34.1.1"
+    "electron": "^34.1.1",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1"
+  },
+  "build": {
+    "mac": {
+      "icon": "assets/icons/mac/MyIcon.icns"
+    },
+    "extraResources": [
+      {
+        "from": "assets/icons/mac/MyIcon.png",
+        "to": "MyIcon.png"
+      }
+    ]
   }
 }

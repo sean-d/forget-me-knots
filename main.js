@@ -1,9 +1,24 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, nativeImage } = require("electron");
 const path = require("path");
 const Database = require("better-sqlite3");
+const fs = require("fs");
 
-// Initialize database
-const db = new Database("fmk.db");
+// ✅ Define a writable database path
+const dbPath = path.join(app.getPath("userData"), "fmk.db");
+
+// ✅ If the database doesn’t exist, copy it from the packaged app
+if (!fs.existsSync(dbPath)) {
+  const sourceDbPath = path.join(__dirname, "fmk.db");
+  if (fs.existsSync(sourceDbPath)) {
+    fs.copyFileSync(sourceDbPath, dbPath);
+  } else {
+    console.error("❌ Database file not found in the packaged app.");
+  }
+}
+
+
+// ✅ Open the database from a writable location
+const db = new Database(dbPath);
 
 // Ensure table is created
 db.exec(`
@@ -25,15 +40,17 @@ db.exec(`
     deleted INTEGER DEFAULT 0,
     position INTEGER DEFAULT 0,
     important INTEGER DEFAULT 0
-)
+  )
 `);
+
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1675,
     height: 800,
+    icon: path.join(__dirname, "assets/icons/mac/MyIcon.icns"), // Set window icon
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"), // Using preload for security
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       enableRemoteModule: false,
     },
@@ -42,8 +59,20 @@ function createWindow() {
   mainWindow.loadFile("index.html");
 }
 
-app.whenReady().then(createWindow);
 
+app.whenReady().then(() => {
+  //const iconPath = path.join(process.resourcesPath, "MyIcon.png");
+  const iconPath = path.join(process.resourcesPath, "MyIcon.icns");
+
+  const dockIcon = nativeImage.createFromPath(iconPath);
+  app.dock.setIcon(dockIcon);
+  
+  createWindow();
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});
 
 ipcMain.handle("saveRow", async (event, data) => {
   try {
