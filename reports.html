@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Reports</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    .report-container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    input, button { padding: 5px; margin: 5px; }
+  </style>
+  <script src="reports.js"></script>
+</head>
+<body>
+<h1>Project Reports</h1>
+
+<div class="report-container">
+  <h3>Total Projects</h3>
+  <p><strong>Open:</strong> <span id="total-open">Loading...</span></p>
+  <p><strong>Completed:</strong> <span id="total-completed">Loading...</span></p>
+
+  <h3>Projects by Date Range</h3>
+  <label>Start Date: <input type="date" id="start-date"></label>
+  <label>End Date: <input type="date" id="end-date"></label>
+  <button onclick="getProjectsByDate()">Generate Report</button>
+
+  <p><strong>Open (Range):</strong> <span id="range-open">0</span></p>
+  <p><strong>Completed (Range):</strong> <span id="range-completed">0</span></p>
+</div>
+
+</body>
+</html>

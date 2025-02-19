@@ -247,3 +247,13 @@ async function toggleImportant(event, rowId) {
   // Save to the database
   await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
 }
+
+// for reports generated
+document.addEventListener("DOMContentLoaded", () => {
+  const openReportsBtn = document.getElementById("open-reports");
+  if (openReportsBtn) {
+    openReportsBtn.addEventListener("click", () => {
+      window.electronAPI.openReports();
+    });
+  }
+});
