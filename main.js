@@ -57,13 +57,61 @@ ipcMain.handle("getActiveRows", async () => {
   }
 });
 
+// ipcMain.handle("saveRow", async (event, data) => {
+//   try {
+//     if (!data.projectName || typeof data.projectName !== "string") {
+//       throw new Error("Invalid project name.");
+//     }
+//
+//     const dateStarted = data.dateStarted?.trim() || null;
+//     const completedDate = data.completedDate?.trim() || null;
+//
+//     if (data.id) {
+//       db.prepare(`
+//         UPDATE projects SET
+//           date_started = ?, completed_date = ?, project_name = ?,
+//           fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
+//           back_prepped = ?, basted = ?, quilted = ?, bound = ?,
+//           photographed = ?, important = ?
+//         WHERE id = ?
+//       `).run(
+//           dateStarted, completedDate, data.projectName,
+//           data.fabricChosen, data.cut, data.pieced, data.assembled,
+//           data.backPrepped, data.basted, data.quilted, data.bound,
+//           data.photographed, data.important, data.id
+//       );
+//       return { success: true, id: data.id };
+//     } else {
+//       const result = db.prepare(`
+//         INSERT INTO projects
+//         (date_started, completed_date, project_name, fabric_chosen, cut, pieced, assembled,
+//          back_prepped, basted, quilted, bound, photographed, important)
+//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//       `).run(
+//           dateStarted, completedDate, data.projectName,
+//           data.fabricChosen, data.cut, data.pieced, data.assembled,
+//           data.backPrepped, data.basted, data.quilted, data.bound,
+//           data.photographed, data.important
+//       );
+//
+//       return { success: true, id: result.lastInsertRowid };
+//     }
+//   } catch (error) {
+//     return { success: false, error: error.message };
+//   }
+// });
+
 ipcMain.handle("saveRow", async (event, data) => {
   try {
-    if (!data.projectName || typeof data.projectName !== "string") {
-      throw new Error("Invalid project name.");
+    if (!data.dateStarted || typeof data.dateStarted !== "string" || data.dateStarted.trim() === "") {
+      throw new Error("Start date is required.");
     }
 
-    const dateStarted = data.dateStarted?.trim() || null;
+    if (!data.projectName || typeof data.projectName !== "string") {
+      throw new Error("Project name is required.");
+    }
+
+    const dateStarted = data.dateStarted.trim();
     const completedDate = data.completedDate?.trim() || null;
 
     if (data.id) {
@@ -96,6 +144,111 @@ ipcMain.handle("saveRow", async (event, data) => {
 
       return { success: true, id: result.lastInsertRowid };
     }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
+  try {
+    const validColumns = [
+      "date_started", "completed_date", "project_name", "fabric_chosen",
+      "cut", "pieced", "assembled", "back_prepped", "basted",
+      "quilted", "bound", "photographed"
+    ];
+    const validOrders = ["ASC", "DESC"];
+
+    if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
+      sortBy = "completed_date"; // Default fallback
+      sortOrder = "DESC";
+    }
+
+    return db.prepare(`
+      SELECT id, date_started, completed_date, project_name,
+             fabric_chosen, cut, pieced, assembled, back_prepped,
+             basted, quilted, bound, photographed
+      FROM projects
+      WHERE archived = 1
+      ORDER BY ${sortBy} ${sortOrder}
+    `).all();
+  } catch (error) {
+    return [];
+  }
+});
+
+
+ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
+  try {
+    db.prepare("UPDATE projects SET archived = ? WHERE id = ?").run(isArchived ? 1 : 0, rowId);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("deleteRow", async (event, rowId) => {
+  try {
+    db.prepare("UPDATE projects SET deleted = 1 WHERE id = ?").run(rowId);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("getDeletedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
+  try {
+    const validColumns = [
+      "date_started", "completed_date", "project_name", "fabric_chosen",
+      "cut", "pieced", "assembled", "back_prepped", "basted",
+      "quilted", "bound", "photographed"
+    ];
+    const validOrders = ["ASC", "DESC"];
+
+    if (!validColumns.includes(sortBy) || !validOrders.includes(sortOrder)) {
+      sortBy = "completed_date"; // Default fallback
+      sortOrder = "DESC";
+    }
+
+    return db.prepare(`
+      SELECT id, date_started, completed_date, project_name,
+             fabric_chosen, cut, pieced, assembled, back_prepped,
+             basted, quilted, bound, photographed
+      FROM projects
+      WHERE deleted = 1
+      ORDER BY ${sortBy} ${sortOrder}
+    `).all();
+  } catch (error) {
+    return [];
+  }
+});
+
+ipcMain.handle("restoreDeletedRow", async (event, rowId) => {
+  try {
+    // Restore item by setting deleted = 0 and keeping archived status unchanged
+    db.prepare("UPDATE projects SET deleted = 0 WHERE id = ?").run(rowId);
+
+    // Fetch the item's archived status
+    const row = db.prepare("SELECT archived FROM projects WHERE id = ?").get(rowId);
+
+    return { success: true, archived: row?.archived || 0 }; // Return archived status
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
+  try {
+    db.prepare("DELETE FROM projects WHERE id = ?").run(rowId);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("purgeDeletedRows", async () => {
+  try {
+    db.prepare("DELETE FROM projects WHERE deleted = 1").run();
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
