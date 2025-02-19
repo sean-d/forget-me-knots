@@ -1,19 +1,14 @@
-const { Menu, app, BrowserWindow, ipcMain, nativeImage } = require("electron");
+const { dialog, Menu, app, BrowserWindow, ipcMain, nativeImage } = require("electron");
 const path = require("path");
 const Database = require("better-sqlite3");
 const fs = require("fs");
 
 let mainWindow;
 
-// ✅ Define Dock Menu for macOS
 if (process.platform === "darwin") {
   const dockMenu = Menu.buildFromTemplate([
-    {
-      label: "ALL THE REPORTS",
-      click: () => {
-        createReportsWindow();
-      },
-    },
+    { label: "Open Reports", click: () => createReportsWindow() },
+    { label: "Open Settings", click: () => createSettingsWindow() },
     { label: "Quit", role: "quit" },
   ]);
 
@@ -218,6 +213,15 @@ ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
   }
 });
 
+ipcMain.handle("purgeDeletedRows", async () => {
+  try {
+    db.prepare("DELETE FROM projects WHERE deleted = 1").run();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 
 // ✅ Get total number of open projects
 ipcMain.handle("getTotalOpenProjects", async () => {
@@ -279,9 +283,85 @@ function createReportsWindow() {
   reportsWindow.loadFile("reports.html");
 }
 
+// ✅ Function to Create Settings Window
+function createSettingsWindow() {
+  const settingsWindow = new BrowserWindow({
+    width: 600,
+    height: 500,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+  });
+
+  settingsWindow.loadFile("settings.html");
+}
+
 // ✅ IPC Handler for Opening Reports
 ipcMain.handle("openReports", () => {
   createReportsWindow();
+});
+
+// ✅ IPC Handler for Opening Settings from Renderer
+ipcMain.handle("openSettings", () => {
+  createSettingsWindow();
+});
+
+// ✅ Export all projects to a JSON file
+ipcMain.handle("exportData", async () => {
+  try {
+    const projects = db.prepare("SELECT * FROM projects").all();
+
+    const filePath = dialog.showSaveDialogSync({
+      title: "Export Data",
+      defaultPath: "projects-backup.json",
+      filters: [{ name: "JSON Files", extensions: ["json"] }],
+    });
+
+    if (!filePath) return { success: false, message: "Export canceled." };
+
+    fs.writeFileSync(filePath, JSON.stringify(projects, null, 2));
+    return { success: true, message: "Data exported successfully!", filePath };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("importData", async () => {
+  try {
+    const filePath = dialog.showOpenDialogSync({
+      title: "Import Data",
+      filters: [{ name: "JSON Files", extensions: ["json"] }],
+      properties: ["openFile"],
+    });
+
+    if (!filePath || filePath.length === 0) return { success: false, message: "Import canceled." };
+
+    const jsonData = JSON.parse(fs.readFileSync(filePath[0], "utf-8"));
+
+    // Insert data into database
+    const insertStmt = db.prepare(`
+      INSERT INTO projects (id, date_started, completed_date, project_name, 
+        fabric_chosen, cut, pieced, assembled, back_prepped, basted, quilted, bound, 
+        photographed, archived, deleted, position, important)
+      VALUES (@id, @date_started, @completed_date, @project_name, @fabric_chosen, 
+        @cut, @pieced, @assembled, @back_prepped, @basted, @quilted, @bound, 
+        @photographed, @archived, @deleted, @position, @important)
+    `);
+
+    const insertMany = db.transaction((data) => {
+      for (const row of data) {
+        insertStmt.run(row);
+      }
+    });
+
+    insertMany(jsonData);
+
+    return { success: true, message: "Data imported successfully!" };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 });
 
 // ✅ Start Electron app
