@@ -10,4 +10,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     restoreDeletedRow: (id) => ipcRenderer.invoke("restoreDeletedRow", id),
     purgeDeletedRow: (id) => ipcRenderer.invoke("purgeDeletedRow", id),
     purgeDeletedRows: () => ipcRenderer.invoke("purgeDeletedRows"),
+    openReports: () => ipcRenderer.invoke("openReports"),
+    getTotalOpenProjects: () => ipcRenderer.invoke("getTotalOpenProjects"),
+    getTotalCompletedProjects: () => ipcRenderer.invoke("getTotalCompletedProjects"),
+    getProjectsByDateRange: (startDate, endDate) => ipcRenderer.invoke("getProjectsByDateRange", startDate, endDate),
 });

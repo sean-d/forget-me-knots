@@ -57,50 +57,6 @@ ipcMain.handle("getActiveRows", async () => {
   }
 });
 
-// ipcMain.handle("saveRow", async (event, data) => {
-//   try {
-//     if (!data.projectName || typeof data.projectName !== "string") {
-//       throw new Error("Invalid project name.");
-//     }
-//
-//     const dateStarted = data.dateStarted?.trim() || null;
-//     const completedDate = data.completedDate?.trim() || null;
-//
-//     if (data.id) {
-//       db.prepare(`
-//         UPDATE projects SET
-//           date_started = ?, completed_date = ?, project_name = ?,
-//           fabric_chosen = ?, cut = ?, pieced = ?, assembled = ?,
-//           back_prepped = ?, basted = ?, quilted = ?, bound = ?,
-//           photographed = ?, important = ?
-//         WHERE id = ?
-//       `).run(
-//           dateStarted, completedDate, data.projectName,
-//           data.fabricChosen, data.cut, data.pieced, data.assembled,
-//           data.backPrepped, data.basted, data.quilted, data.bound,
-//           data.photographed, data.important, data.id
-//       );
-//       return { success: true, id: data.id };
-//     } else {
-//       const result = db.prepare(`
-//         INSERT INTO projects
-//         (date_started, completed_date, project_name, fabric_chosen, cut, pieced, assembled,
-//          back_prepped, basted, quilted, bound, photographed, important)
-//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//       `).run(
-//           dateStarted, completedDate, data.projectName,
-//           data.fabricChosen, data.cut, data.pieced, data.assembled,
-//           data.backPrepped, data.basted, data.quilted, data.bound,
-//           data.photographed, data.important
-//       );
-//
-//       return { success: true, id: result.lastInsertRowid };
-//     }
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// });
-
 ipcMain.handle("saveRow", async (event, data) => {
   try {
     if (!data.dateStarted || typeof data.dateStarted !== "string" || data.dateStarted.trim() === "") {
@@ -245,22 +201,12 @@ ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
   }
 });
 
-ipcMain.handle("purgeDeletedRows", async () => {
-  try {
-    db.prepare("DELETE FROM projects WHERE deleted = 1").run();
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
 
 // ✅ Get total number of open projects
 ipcMain.handle("getTotalOpenProjects", async () => {
   try {
-    const result = db.prepare(`
-      SELECT COUNT(*) AS total FROM projects WHERE archived = 0 AND deleted = 0
-    `).get();
-    return { success: true, total: result.total };
+    const result = db.prepare("SELECT COUNT(*) AS total FROM projects WHERE archived = 0 AND deleted = 0").get();
+    return { success: true, total: result?.total || 0 };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -269,10 +215,8 @@ ipcMain.handle("getTotalOpenProjects", async () => {
 // ✅ Get total number of completed projects
 ipcMain.handle("getTotalCompletedProjects", async () => {
   try {
-    const result = db.prepare(`
-      SELECT COUNT(*) AS total FROM projects WHERE archived = 1
-    `).get();
-    return { success: true, total: result.total };
+    const result = db.prepare("SELECT COUNT(*) AS total FROM projects WHERE archived = 1 AND deleted = 0").get();
+    return { success: true, total: result?.total || 0 };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -285,13 +229,13 @@ ipcMain.handle("getProjectsByDateRange", async (event, startDate, endDate) => {
       SELECT COUNT(*) AS total FROM projects 
       WHERE archived = 0 AND deleted = 0 
       AND date_started BETWEEN ? AND ?
-    `).get(startDate, endDate);
+    `).get(startDate, endDate) || { total: 0 };
 
     const completedProjects = db.prepare(`
       SELECT COUNT(*) AS total FROM projects 
-      WHERE archived = 1 
+      WHERE archived = 1 AND deleted = 0
       AND completed_date BETWEEN ? AND ?
-    `).get(startDate, endDate);
+    `).get(startDate, endDate) || { total: 0 };
 
     return {
       success: true,
@@ -303,11 +247,16 @@ ipcMain.handle("getProjectsByDateRange", async (event, startDate, endDate) => {
   }
 });
 
+// ✅ Open reports window
 ipcMain.handle("openReports", () => {
   const reportsWindow = new BrowserWindow({
     width: 600,
     height: 500,
-    webPreferences: { nodeIntegration: true },
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
   });
 
   reportsWindow.loadFile("reports.html");
