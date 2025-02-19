@@ -1,0 +1,14 @@
+<button id="export-data">Export Data</button>
+<button id="import-data">Import Data</button>
+
+<script>
+  document.getElementById("export-data").addEventListener("click", async () => {
+    const result = await window.electronAPI.exportData();
+    alert(result.success ? result.message : `Error: ${result.error}`);
+  });
+
+  document.getElementById("import-data").addEventListener("click", async () => {
+    const result = await window.electronAPI.importData();
+    alert(result.success ? result.message : `Error: ${result.error}`);
+  });
+</script>

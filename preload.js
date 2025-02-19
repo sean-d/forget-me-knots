@@ -14,4 +14,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     getTotalOpenProjects: () => ipcRenderer.invoke("getTotalOpenProjects"),
     getTotalCompletedProjects: () => ipcRenderer.invoke("getTotalCompletedProjects"),
     getProjectsByDateRange: (startDate, endDate) => ipcRenderer.invoke("getProjectsByDateRange", startDate, endDate),
+    exportData: () => ipcRenderer.invoke("exportData"),
+    importData: () => ipcRenderer.invoke("importData"),
 });
