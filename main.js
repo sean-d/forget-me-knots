@@ -254,6 +254,65 @@ ipcMain.handle("purgeDeletedRows", async () => {
   }
 });
 
+// ✅ Get total number of open projects
+ipcMain.handle("getTotalOpenProjects", async () => {
+  try {
+    const result = db.prepare(`
+      SELECT COUNT(*) AS total FROM projects WHERE archived = 0 AND deleted = 0
+    `).get();
+    return { success: true, total: result.total };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ✅ Get total number of completed projects
+ipcMain.handle("getTotalCompletedProjects", async () => {
+  try {
+    const result = db.prepare(`
+      SELECT COUNT(*) AS total FROM projects WHERE archived = 1
+    `).get();
+    return { success: true, total: result.total };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ✅ Get open & completed projects within a date range
+ipcMain.handle("getProjectsByDateRange", async (event, startDate, endDate) => {
+  try {
+    const openProjects = db.prepare(`
+      SELECT COUNT(*) AS total FROM projects 
+      WHERE archived = 0 AND deleted = 0 
+      AND date_started BETWEEN ? AND ?
+    `).get(startDate, endDate);
+
+    const completedProjects = db.prepare(`
+      SELECT COUNT(*) AS total FROM projects 
+      WHERE archived = 1 
+      AND completed_date BETWEEN ? AND ?
+    `).get(startDate, endDate);
+
+    return {
+      success: true,
+      openProjects: openProjects.total,
+      completedProjects: completedProjects.total,
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("openReports", () => {
+  const reportsWindow = new BrowserWindow({
+    width: 600,
+    height: 500,
+    webPreferences: { nodeIntegration: true },
+  });
+
+  reportsWindow.loadFile("reports.html");
+});
+
 // ✅ Start Electron app
 app.whenReady().then(() => {
   createWindow();
