@@ -1,9 +1,26 @@
-const { app, BrowserWindow, ipcMain, nativeImage } = require("electron");
+const { Menu, app, BrowserWindow, ipcMain, nativeImage } = require("electron");
 const path = require("path");
 const Database = require("better-sqlite3");
 const fs = require("fs");
 
 let mainWindow;
+
+// ✅ Define Dock Menu for macOS
+if (process.platform === "darwin") {
+  const dockMenu = Menu.buildFromTemplate([
+    {
+      label: "ALL THE REPORTS",
+      click: () => {
+        createReportsWindow();
+      },
+    },
+    { label: "Quit", role: "quit" },
+  ]);
+
+  app.whenReady().then(() => {
+    app.dock.setMenu(dockMenu);
+  });
+}
 
 // ✅ Define database path
 const dbPath = path.join(app.getPath("userData"), "fmk.db");
@@ -247,11 +264,11 @@ ipcMain.handle("getProjectsByDateRange", async (event, startDate, endDate) => {
   }
 });
 
-// ✅ Open reports window
-ipcMain.handle("openReports", () => {
+// ✅ Function to Create Reports Window
+function createReportsWindow() {
   const reportsWindow = new BrowserWindow({
     width: 600,
-    height: 500,
+    height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -260,6 +277,11 @@ ipcMain.handle("openReports", () => {
   });
 
   reportsWindow.loadFile("reports.html");
+}
+
+// ✅ IPC Handler for Opening Reports
+ipcMain.handle("openReports", () => {
+  createReportsWindow();
 });
 
 // ✅ Start Electron app
