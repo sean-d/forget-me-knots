@@ -308,39 +308,42 @@ ipcMain.handle("openSettings", () => {
   createSettingsWindow();
 });
 
-// ✅ Export all projects to a JSON file
 ipcMain.handle("exportData", async () => {
   try {
-    const projects = db.prepare("SELECT * FROM projects").all();
-
     const filePath = dialog.showSaveDialogSync({
       title: "Export Data",
       defaultPath: "projects-backup.json",
       filters: [{ name: "JSON Files", extensions: ["json"] }],
     });
 
-    if (!filePath) return { success: false, message: "Export canceled." };
+    if (!filePath) {
+      return { success: false, message: "Export canceled." };
+    }
 
+    const projects = db.prepare("SELECT * FROM projects").all();
     fs.writeFileSync(filePath, JSON.stringify(projects, null, 2));
+
     return { success: true, message: "Data exported successfully!", filePath };
   } catch (error) {
+    console.error("❌ Export error:", error);
     return { success: false, error: error.message };
   }
 });
 
 ipcMain.handle("importData", async () => {
   try {
-    const filePath = dialog.showOpenDialogSync({
+    const filePaths = dialog.showOpenDialogSync({
       title: "Import Data",
       filters: [{ name: "JSON Files", extensions: ["json"] }],
       properties: ["openFile"],
     });
+    
+    if (!filePaths || filePaths.length === 0) {
+      return { success: false, message: "Import canceled." };
+    }
 
-    if (!filePath || filePath.length === 0) return { success: false, message: "Import canceled." };
+    const jsonData = JSON.parse(fs.readFileSync(filePaths[0], "utf-8"));
 
-    const jsonData = JSON.parse(fs.readFileSync(filePath[0], "utf-8"));
-
-    // Insert data into database
     const insertStmt = db.prepare(`
       INSERT INTO projects (id, date_started, completed_date, project_name, 
         fabric_chosen, cut, pieced, assembled, back_prepped, basted, quilted, bound, 
@@ -360,6 +363,7 @@ ipcMain.handle("importData", async () => {
 
     return { success: true, message: "Data imported successfully!" };
   } catch (error) {
+    console.error("❌ Import error:", error);
     return { success: false, error: error.message };
   }
 });
