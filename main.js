@@ -213,6 +213,15 @@ ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
   }
 });
 
+ipcMain.handle("purgeDeletedRows", async () => {
+  try {
+    db.prepare("DELETE FROM projects WHERE deleted = 1").run();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 
 // ✅ Get total number of open projects
 ipcMain.handle("getTotalOpenProjects", async () => {
