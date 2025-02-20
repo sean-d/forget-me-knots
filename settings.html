@@ -1,16 +1,29 @@
-<button id="export-data">Export Data</button>
-<button id="import-data">Import Data</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
 
-<script>
-    document.getElementById("export-data").addEventListener("click", async () => {
-        const result = await window.electronAPI.exportData();
-        if (!result.success && result.message === "Export canceled.") return; // ✅ Prevent error alerts on cancel
-        alert(result.success ? result.message : `Error: ${result.error}`);
-    });
+<body>
+<h2>Settings</h2>
 
-    document.getElementById("import-data").addEventListener("click", async () => {
-        const result = await window.electronAPI.importData();
-        if (!result.success && result.message === "Import canceled.") return; // ✅ Prevent error alerts on cancel
-        alert(result.success ? result.message : `Error: ${result.error}`);
-    });
-</script>
+<!-- Font Size Selection -->
+<label for="font-size">Font Size:</label>
+<select id="font-size">
+    <option value="14px">Small</option>
+    <option value="16px" selected>Medium</option>
+    <option value="18px">Large</option>
+    <option value="20px">Extra Large</option>
+</select>
+
+<button class="save" id="save-settings">Save</button>
+
+<hr>
+
+<!-- Data Import/Export Buttons -->
+<button class="settings-data" id="import-data">Import Data</button>
+<button class="settings-data" id="export-data">Export Data</button>
+</body>
+</html>

@@ -257,3 +257,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// for settings page: import/export data
+document.addEventListener("DOMContentLoaded", () => {
+  const exportButton = document.getElementById("export-data");
+  const importButton = document.getElementById("import-data");
+
+  if (exportButton) {
+    exportButton.addEventListener("click", async () => {
+      const result = await window.electronAPI.exportData();
+      if (!result.success && result.message === "Export canceled.") return; // ✅ Prevent error alerts on cancel
+      alert(result.success ? result.message : `Error: ${result.error}`);
+    });
+  }
+
+  if (importButton) {
+    importButton.addEventListener("click", async () => {
+      const result = await window.electronAPI.importData();
+      if (!result.success && result.message === "Import canceled.") return; // ✅ Prevent error alerts on cancel
+      alert(result.success ? result.message : `Error: ${result.error}`);
+    });
+  }
+});
+
+// for adjusting the font via settings.html
+document.addEventListener("DOMContentLoaded", () => {
+  const fontSizeSelect = document.getElementById("font-size");
+  const saveButton = document.getElementById("save-settings");
+
+  // ✅ Load saved font size from local storage (for settings page dropdown)
+  if (fontSizeSelect) {
+    const savedFontSize = localStorage.getItem("fontSize") || "16px";
+    fontSizeSelect.value = savedFontSize;
+  }
+
+  // ✅ Save font size when clicking "Save"
+  if (saveButton) {
+    saveButton.addEventListener("click", () => {
+      const selectedFontSize = fontSizeSelect.value;
+      localStorage.setItem("fontSize", selectedFontSize);
+      alert("Font size saved!");
+    });
+  }
+
+  // ✅ Apply font size to all relevant pages
+  if (
+      window.location.pathname.includes("index.html") ||
+      window.location.pathname.includes("archive.html") ||
+      window.location.pathname.includes("deleted.html") ||
+      window.location.pathname.includes("reports.html") ||
+      window.location.pathname.includes("settings.html")
+  ) {
+    const savedFontSize = localStorage.getItem("fontSize") || "16px";
+    document.body.style.fontSize = savedFontSize;
+  }
+});
