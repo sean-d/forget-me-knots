@@ -78,6 +78,14 @@ body {
         background-color: #a71
     }
 
+    button.settings-data {
+        background-color: #aa5;
+    }
+
+    button.settings-data:hover {
+        background-color: #bb9;
+    }
+
     table {
         width: 100%;
         border-collapse: collapse;

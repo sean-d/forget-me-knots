@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/sean-d/forget-me-knots#readme",
   "devDependencies": {
-    "electron": "^34.1.1",
+    "electron": "^34.2.0",
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
@@ -26,7 +26,13 @@
   },
   "build": {
     "mac": {
-      "icon": "assets/icons/mac/MyIcon.icns"
+      "icon": "assets/icons/mac/MyIcon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ]
     },
     "extraResources": [
       {
