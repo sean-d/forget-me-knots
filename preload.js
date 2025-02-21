@@ -1,3 +1,10 @@
+/**
+ * Preload script to securely expose Electron IPC methods to the renderer process.
+ *
+ * - Uses `contextBridge` to limit direct access to `ipcRenderer`, enhancing security.
+ * - Provides safe, structured API calls for communication with the main process.
+ * - Prevents direct `require("electron")` calls in the renderer process.
+ */
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {

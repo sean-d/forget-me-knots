@@ -1,4 +1,12 @@
-// ✅ Load total counts when the page loads
+/**
+ * Loads total counts of open and completed projects when the page loads.
+ *
+ * - Retrieves the total number of open projects using `getTotalOpenProjects()`.
+ * - Retrieves the total number of completed projects using `getTotalCompletedProjects()`.
+ * - Updates the corresponding elements with retrieved values or displays `"Error"` if the request fails.
+ *
+ * @returns {Promise<void>}
+ */
 async function loadTotals() {
     try {
         const openProjects = await window.electronAPI.getTotalOpenProjects();
@@ -12,7 +20,16 @@ async function loadTotals() {
     }
 }
 
-// ✅ Fetch totals based on date range
+/**
+ * Fetches project totals based on a selected date range.
+ *
+ * - Retrieves user-selected `startDate` and `endDate` values.
+ * - If either date is missing, prompts the user to select both dates.
+ * - Calls `getProjectsByDateRange()` to fetch counts for open and completed projects within the range.
+ * - Updates the UI with retrieved values or `"Error"` if the request fails.
+ *
+ * @returns {Promise<void>}
+ */
 async function getProjectsByDate() {
     const startDate = document.getElementById("start-date").value;
     const endDate = document.getElementById("end-date").value;
@@ -32,5 +49,9 @@ async function getProjectsByDate() {
     }
 }
 
-// ✅ Run on page load
+/**
+ * Calls `loadTotals()` when the page loads.
+ *
+ * - Ensures total counts are displayed immediately on page initialization.
+ */
 window.onload = loadTotals;
