@@ -1,10 +1,33 @@
+/**
+ * Loads deleted items when the page is fully loaded.
+ *
+ * - Calls `loadDeletedItems()` to fetch and display deleted projects.
+ * - Sorts by `"completed_date"` in descending order (`"DESC"`) by default.
+ * - Ensures the table is populated with deleted projects when the user opens the deleted items view.
+ */
 document.addEventListener("DOMContentLoaded", () => {
     loadDeletedItems("completed_date", "DESC"); // Default sorting
 });
 
-let currentSortColumn = "completed_date"; // Default sorting column
-let currentSortOrder = "DESC"; // Default sorting order
+/**
+ * Tracks the current sorting column and order for deleted items.
+ *
+ * - `currentSortColumn`: Stores the active column used for sorting (default: `"completed_date"`).
+ * - `currentSortOrder`: Tracks whether sorting is in ascending (`"ASC"`) or descending (`"DESC"`) order.
+ * - These variables are used in `sortDeleted()` to toggle sorting preferences.
+ */
+let currentSortColumn = "completed_date";
+let currentSortOrder = "DESC";
 
+/**
+ * Sorts the deleted items table by the selected column and reloads the data.
+ *
+ * - Toggles the sort order (ascending/descending) if the same column is clicked consecutively.
+ * - Sets the default sort order to ascending (`"ASC"`) when switching to a new column.
+ * - Calls `loadDeletedItems()` to refresh the table with updated sorting preferences.
+ *
+ * @param {string} column - The column name to sort by.
+ */
 function sortDeleted(column) {
     if (currentSortColumn === column) {
         currentSortOrder = currentSortOrder === "ASC" ? "DESC" : "ASC"; // Toggle order
@@ -15,6 +38,20 @@ function sortDeleted(column) {
     loadDeletedItems(currentSortColumn, currentSortOrder); // Reload with new sorting
 }
 
+
+/**
+ * Loads deleted project items from the database and populates the deleted items table.
+ *
+ * - Fetches deleted items from the Electron API with optional sorting.
+ * - Clears the table before inserting new data.
+ * - If no deleted items exist, displays a message instead.
+ * - Populates each row with project details and action buttons for restoring or permanent deletion.
+ * - Handles errors gracefully and logs them to the console.
+ *
+ * @param {string} [sortBy="completed_date"] - The column to sort by.
+ * @param {string} [sortOrder="DESC"] - The sorting order (`"ASC"` or `"DESC"`).
+ * @returns {Promise<void>}
+ */
 async function loadDeletedItems(sortBy = "completed_date", sortOrder = "DESC") {
     const tableBody = document.getElementById("deleted-table");
 
@@ -63,13 +100,20 @@ async function loadDeletedItems(sortBy = "completed_date", sortOrder = "DESC") {
     }
 }
 
-// Load deleted items on page load
-window.addEventListener("DOMContentLoaded", loadDeletedItems);
 
-// Load deleted items on page load
-window.addEventListener("DOMContentLoaded", loadDeletedItems);
-
-// Restore deleted item
+/**
+ * Restores a deleted project by setting `deleted = 0` in the database.
+ *
+ * - Calls the Electron API to restore the project.
+ * - Removes the restored row from the UI immediately.
+ * - Redirects the user based on the project's archived status:
+ *   - If archived (`response.archived === 1`), redirects to `"archive.html"`.
+ *   - Otherwise, redirects to `"index.html"`.
+ * - Alerts the user if restoration is successful or if an error occurs.
+ *
+ * @param {number} rowId - The ID of the project to restore.
+ * @returns {Promise<void>}
+ */
 async function restoreDeletedRow(rowId) {
     const response = await window.electronAPI.restoreDeletedRow(rowId);
 
@@ -90,7 +134,17 @@ async function restoreDeletedRow(rowId) {
     }
 }
 
-// Permanently delete a single row
+/**
+ * Permanently deletes a single deleted project from the database.
+ *
+ * - Prompts the user for confirmation before deleting.
+ * - Calls the Electron API to remove the project permanently.
+ * - If successful, removes the row from the UI.
+ * - Alerts the user about the success or failure of the operation.
+ *
+ * @param {number} rowId - The ID of the project to permanently delete.
+ * @returns {Promise<void>}
+ */
 async function purgeRow(rowId) {
     const confirmPurge = confirm("Are you sure you want to permanently delete this item?");
     if (!confirmPurge) return;
@@ -105,7 +159,16 @@ async function purgeRow(rowId) {
     }
 }
 
-// Permanently delete all deleted items
+/**
+ * Permanently deletes all projects marked as deleted.
+ *
+ * - Prompts the user for confirmation before deleting all deleted projects.
+ * - Calls the Electron API to purge all deleted items from the database.
+ * - If successful, clears the deleted items table in the UI.
+ * - Alerts the user about the success or failure of the operation.
+ *
+ * @returns {Promise<void>}
+ */
 async function purgeDeletedItems() {
     const confirmPurge = confirm("Are you sure you want to permanently delete ALL deleted items?");
     if (!confirmPurge) return;
@@ -119,3 +182,12 @@ async function purgeDeletedItems() {
         alert("Error purging items: " + response.error);
     }
 }
+
+/**
+ * Loads deleted items when the page is fully loaded.
+ *
+ * - Calls `loadDeletedItems()` to fetch and display deleted projects.
+ * - Ensures the deleted items table is populated on page initialization.
+ * - This event listener prevents manually triggering `loadDeletedItems()`.
+ */
+window.addEventListener("DOMContentLoaded", loadDeletedItems);
