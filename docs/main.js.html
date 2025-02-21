@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @typedef {Object} ApiResponse
  * @property {boolean} success - Indicates if the operation was successful.
  * @property {string} [error] - Error message if the operation fails (optional).
@@ -151,7 +179,7 @@ db.exec(`
  *   - `important` status for flagged projects.
  * - If an error occurs, returns an empty array instead of crashing the application.
  *
- * @returns {Promise<Array<Object>>} A list of active projects or an empty array on failure.
+ * @returns {Promise&lt;Array&lt;Object>>} A list of active projects or an empty array on failure.
  */
 ipcMain.handle("getActiveRows", async () => {
   try {
@@ -190,7 +218,7 @@ ipcMain.handle("getActiveRows", async () => {
  * @param {number} data.bound - 1 if bound, 0 otherwise.
  * @param {number} data.photographed - 1 if photographed, 0 otherwise.
  * @param {number} data.important - 1 if marked important, 0 otherwise.
- * @returns {Promise<SaveRowResponse>} A success response or an error message.
+ * @returns {Promise&lt;SaveRowResponse>} A success response or an error message.
  */
 ipcMain.handle("saveRow", async (event, data) => {
   try {
@@ -253,7 +281,7 @@ ipcMain.handle("saveRow", async (event, data) => {
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {string} [sortBy="completed_date"] - The column to sort by.
  * @param {string} [sortOrder="DESC"] - The sorting order (`"ASC"` or `"DESC"`).
- * @returns {Promise<Array<Object>>} A list of archived projects or an empty array on failure.
+ * @returns {Promise&lt;Array&lt;Object>>} A list of archived projects or an empty array on failure.
  */
 ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {
@@ -293,7 +321,7 @@ ipcMain.handle("getArchivedRows", async (event, sortBy = "completed_date", sortO
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {number} rowId - The ID of the project to archive or unarchive.
  * @param {boolean} isArchived - `true` to archive, `false` to restore.
- * @returns {Promise<ApiResponse>} A success response or an error message.
+ * @returns {Promise&lt;ApiResponse>} A success response or an error message.
  */
 ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
   try {
@@ -313,7 +341,7 @@ ipcMain.handle("archiveRow", async (event, rowId, isArchived) => {
  *
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {number} rowId - The ID of the project to delete.
- * @returns {Promise<ApiResponse>} A success response or an error message.
+ * @returns {Promise&lt;ApiResponse>} A success response or an error message.
  */
 ipcMain.handle("deleteRow", async (event, rowId) => {
   try {
@@ -336,7 +364,7 @@ ipcMain.handle("deleteRow", async (event, rowId) => {
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {string} [sortBy="completed_date"] - The column to sort by.
  * @param {string} [sortOrder="DESC"] - The sorting order (`"ASC"` or `"DESC"`).
- * @returns {Promise<Array<Object>>} A list of deleted projects or an empty array on failure.
+ * @returns {Promise&lt;Array&lt;Object>>} A list of deleted projects or an empty array on failure.
  */
 ipcMain.handle("getDeletedRows", async (event, sortBy = "completed_date", sortOrder = "DESC") => {
   try {
@@ -374,7 +402,7 @@ ipcMain.handle("getDeletedRows", async (event, sortBy = "completed_date", sortOr
  *
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {number} rowId - The ID of the project to restore.
- * @returns {Promise<RestoreResponse>} A success response or an error message.
+ * @returns {Promise&lt;RestoreResponse>} A success response or an error message.
  */
 ipcMain.handle("restoreDeletedRow", async (event, rowId) => {
   try {
@@ -398,7 +426,7 @@ ipcMain.handle("restoreDeletedRow", async (event, rowId) => {
  *
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {number} rowId - The ID of the project to permanently delete.
- * @returns {Promise<ApiResponse>} - Contains success status and optional error message.
+ * @returns {Promise&lt;ApiResponse>} - Contains success status and optional error message.
  */
 ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
   try {
@@ -416,7 +444,7 @@ ipcMain.handle("purgeDeletedRow", async (event, rowId) => {
  * - This action cannot be undone.
  *
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
- * @returns {Promise<ApiResponse>} - Contains success status and optional error message.
+ * @returns {Promise&lt;ApiResponse>} - Contains success status and optional error message.
  */
 ipcMain.handle("purgeDeletedRows", async () => {
   try {
@@ -434,7 +462,7 @@ ipcMain.handle("purgeDeletedRows", async () => {
  * - Counts projects where `archived = 0` and `deleted = 0`.
  * - Returns the total count or an error message if the query fails.
  *
- * @returns {Promise<CountResponse>} The total count or an error message.
+ * @returns {Promise&lt;CountResponse>} The total count or an error message.
  *          - `success`: Indicates if the operation was successful.
  *          - `total`: The number of active projects.
  *          - `error`: Contains the error message if the query fails.
@@ -454,7 +482,7 @@ ipcMain.handle("getTotalOpenProjects", async () => {
  * - Counts projects where `archived = 1` and `deleted = 0`.
  * - Returns the total count or an error message if the query fails.
  *
- * @returns {Promise<CountResponse>} The total count or an error message.
+ * @returns {Promise&lt;CountResponse>} The total count or an error message.
  *          - `success`: Indicates if the operation was successful.
  *          - `total`: The number of completed projects.
  *          - `error`: Contains the error message if the query fails.
@@ -478,7 +506,7 @@ ipcMain.handle("getTotalCompletedProjects", async () => {
  * @param {Electron.IpcMainInvokeEvent} event - The IPC event (unused in this function).
  * @param {string} startDate - The start of the date range (format: YYYY-MM-DD).
  * @param {string} endDate - The end of the date range (format: YYYY-MM-DD).
- * @returns {Promise<DateRangeResponse>} Project counts or an error message.
+ * @returns {Promise&lt;DateRangeResponse>} Project counts or an error message.
  *          - `openProjects`: The number of open projects within the range.
  *          - `completedProjects`: The number of completed projects within the range.
  *          - `error`: Contains the error message if the query fails.
@@ -535,7 +563,7 @@ ipcMain.handle("openSettings", () => {
  * - Retrieves all projects from the database and writes them to a JSON file.
  * - Returns success or failure status with additional information.
  *
- * @returns {Promise<FileOperationResponse>} A success response or an error message.
+ * @returns {Promise&lt;FileOperationResponse>} A success response or an error message.
  *          - `success`: Indicates if the export was successful.
  *          - `message`: Provides user feedback.
  *          - `filePath`: The location where the file was saved.
@@ -571,7 +599,7 @@ ipcMain.handle("exportData", async () => {
  * - Uses a transaction to ensure data integrity.
  * - Returns success or failure status with additional information.
  *
- * @returns {Promise<FileOperationResponse>} A success response or an error message.
+ * @returns {Promise&lt;FileOperationResponse>} A success response or an error message.
  *          - `success`: Indicates if the import was successful.
  *          - `message`: Provides user feedback.
  *          - `error`: Contains an error message if the operation fails.
@@ -729,4 +757,26 @@ app.whenReady().then(() => {
     const dockIcon = nativeImage.createFromPath(iconPath);
     app.dock.setIcon(dockIcon);
   }
-});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addRow">addRow</a></li><li><a href="global.html#createReportsWindow">createReportsWindow</a></li><li><a href="global.html#createSettingsWindow">createSettingsWindow</a></li><li><a href="global.html#createWindow">createWindow</a></li><li><a href="global.html#currentSortColumn">currentSortColumn</a></li><li><a href="global.html#deleteRow">deleteRow</a></li><li><a href="global.html#getProjectsByDate">getProjectsByDate</a></li><li><a href="global.html#loadActiveItems">loadActiveItems</a></li><li><a href="global.html#loadArchivedItems">loadArchivedItems</a></li><li><a href="global.html#loadDeletedItems">loadDeletedItems</a></li><li><a href="global.html#loadTotals">loadTotals</a></li><li><a href="global.html#markAsDone">markAsDone</a></li><li><a href="global.html#purgeDeletedItems">purgeDeletedItems</a></li><li><a href="global.html#purgeRow">purgeRow</a></li><li><a href="global.html#restoreDeletedRow">restoreDeletedRow</a></li><li><a href="global.html#restoreRow">restoreRow</a></li><li><a href="global.html#saveRow">saveRow</a></li><li><a href="global.html#sortArchive">sortArchive</a></li><li><a href="global.html#sortDeleted">sortDeleted</a></li><li><a href="global.html#toggleImportant">toggleImportant</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 21 2025 10:37:25 GMT-1000 (Hawaii-Aleutian Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

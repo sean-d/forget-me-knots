@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: archive.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: archive.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Defines the default sorting column and order for archived items.
+ *
+ * - `currentSortColumn`: Stores the active column used for sorting (default: `"completed_date"`).
+ * - `currentSortOrder`: Tracks whether sorting is in ascending (`"ASC"`) or descending (`"DESC"`) order.
+ * - `DOMContentLoaded` event ensures archived items are loaded when the page loads.
+ */
+let currentSortColumn = "completed_date";
+let currentSortOrder = "DESC";
+window.addEventListener("DOMContentLoaded", loadArchivedItems);
+
+/**
+ * Loads archived items when the page is fully loaded.
+ *
+ * - Calls `loadArchivedItems()` to fetch and display archived projects.
+ * - Sorts by `"completed_date"` in descending order (`"DESC"`) by default.
+ * - Ensures the table is populated with archived projects when the user opens the archive view.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    loadArchivedItems("completed_date", "DESC"); // Default: Show most recent first
+});
+
+/**
+ * Sorts the archived items table by the selected column and reloads the data.
+ *
+ * - Toggles the sort order (ascending/descending) if the same column is clicked consecutively.
+ * - Sets the default sort order to ascending (`"ASC"`) when switching to a new column.
+ * - Calls `loadArchivedItems()` to reload the table with the updated sorting preferences.
+ *
+ * @param {string} column - The column name to sort by.
+ */
+function sortArchive(column) {
+    if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === "ASC" ? "DESC" : "ASC"; // Toggle order
+    } else {
+        currentSortColumn = column;
+        currentSortOrder = "ASC"; // Default to ascending when switching column
+    }
+    loadArchivedItems(currentSortColumn, currentSortOrder); // Reload with new sorting
+}
+
+/**
+ * Loads archived project items from the database and populates the archive table.
+ *
+ * - Fetches archived items from the Electron API with optional sorting.
+ * - Clears the table before repopulating it with new data.
+ * - If no archived items exist, displays a message instead.
+ * - Populates each row with project details and action buttons for restoration or deletion.
+ * - Handles errors gracefully and logs them to the console.
+ *
+ * @param {string} [sortBy="completed_date"] - The column to sort by.
+ * @param {string} [sortOrder="DESC"] - The sorting order (`"ASC"` or `"DESC"`).
+ * @returns {Promise&lt;void>}
+ */
+async function loadArchivedItems(sortBy = "completed_date", sortOrder = "DESC") {
+    const tableBody = document.getElementById("archive-table");
+
+    if (!tableBody) {
+        console.error("Table body not found!");
+        return;
+    }
+
+    try {
+        const archivedRows = await window.electronAPI.getArchivedRows(sortBy, sortOrder);
+        tableBody.innerHTML = ""; // Clear table before repopulating
+
+        if (!archivedRows || archivedRows.length === 0) {
+            tableBody.innerHTML = "&lt;tr>&lt;td colspan='13'>No archived projects found.&lt;/td>&lt;/tr>";
+            return;
+        }
+
+        archivedRows.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.dataset.id = row.id;
+
+            if (row.important) tr.classList.add("important");
+
+            tr.innerHTML = `
+        &lt;td>${row.date_started || "N/A"}&lt;/td>
+        &lt;td>${row.completed_date || "N/A"}&lt;/td>
+        &lt;td>${row.project_name || "N/A"}&lt;/td>
+        &lt;td>${row.fabric_chosen ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.cut ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.pieced ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.assembled ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.back_prepped ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.basted ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.quilted ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.bound ? "✔" : "✘"}&lt;/td>
+        &lt;td>${row.photographed ? "✔" : "✘"}&lt;/td>
+        &lt;td>
+          &lt;button class="done" onclick="restoreRow(${row.id})">Restore&lt;/button>
+          &lt;button class="delete" onclick="deleteRow(${row.id})">Delete&lt;/button>
+        &lt;/td>
+      `;
+            tableBody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error("Error loading archived items:", error);
+    }
+}
+
+
+
+/**
+ * Restores an archived project item back to the active list.
+ *
+ * - Sends a request to the Electron API to unarchive the item.
+ * - If successful, removes the row from the archive table.
+ * - Displays a success message upon restoration.
+ * - Alerts the user if an error occurs during the process.
+ *
+ * @param {number} rowId - The ID of the archived row to be restored.
+ * @returns {Promise&lt;void>}
+ */
+async function restoreRow(rowId) {
+    const response = await window.electronAPI.archiveRow(rowId, false);
+
+    if (response.success) {
+        alert("Item restored!");
+        document.querySelector(`tr[data-id="${rowId}"]`)?.remove();
+    } else {
+        alert("Error restoring item: " + response.error);
+    }
+}
+
+/**
+ * Deletes an archived project item permanently.
+ *
+ * - Prompts the user for confirmation before deleting.
+ * - Sends a request to the Electron API to delete the item from the database.
+ * - If successful, removes the row from the UI.
+ * - Displays an alert indicating success or failure.
+ *
+ * @param {number} rowId - The ID of the archived row to be deleted.
+ * @returns {Promise&lt;void>}
+ */
+async function deleteRow(rowId) {
+    const confirmDelete = confirm("Are you sure you wish to delete this archived item?");
+    if (!confirmDelete) return;
+
+    const response = await window.electronAPI.deleteRow(rowId);
+
+    if (response.success) {
+        alert("Item moved to Deleted Items!");
+        document.querySelector(`tr[data-id="${rowId}"]`)?.remove(); // Remove from UI
+    } else {
+        alert("Error deleting item: " + response.error);
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addRow">addRow</a></li><li><a href="global.html#createReportsWindow">createReportsWindow</a></li><li><a href="global.html#createSettingsWindow">createSettingsWindow</a></li><li><a href="global.html#createWindow">createWindow</a></li><li><a href="global.html#currentSortColumn">currentSortColumn</a></li><li><a href="global.html#deleteRow">deleteRow</a></li><li><a href="global.html#getProjectsByDate">getProjectsByDate</a></li><li><a href="global.html#loadActiveItems">loadActiveItems</a></li><li><a href="global.html#loadArchivedItems">loadArchivedItems</a></li><li><a href="global.html#loadDeletedItems">loadDeletedItems</a></li><li><a href="global.html#loadTotals">loadTotals</a></li><li><a href="global.html#markAsDone">markAsDone</a></li><li><a href="global.html#purgeDeletedItems">purgeDeletedItems</a></li><li><a href="global.html#purgeRow">purgeRow</a></li><li><a href="global.html#restoreDeletedRow">restoreDeletedRow</a></li><li><a href="global.html#restoreRow">restoreRow</a></li><li><a href="global.html#saveRow">saveRow</a></li><li><a href="global.html#sortArchive">sortArchive</a></li><li><a href="global.html#sortDeleted">sortDeleted</a></li><li><a href="global.html#toggleImportant">toggleImportant</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 21 2025 10:37:25 GMT-1000 (Hawaii-Aleutian Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

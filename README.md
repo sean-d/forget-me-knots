@@ -17,7 +17,8 @@ A simple task tracking application for sewing projects.
 * sqlite3
 * electron ```npm install electron --save-dev```
 * better-sqlite3 ```npm install better-sqlite3```
-
+* electron-builder ```npm install --save-dev electron-builder```
+* jsdoc ```npm install --save-dev jsdoc```
 
 ## TroubleShooting
 
