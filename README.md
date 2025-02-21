@@ -14,6 +14,7 @@ Check the /docs or visit here: [https://sean-d.github.io/forget-me-knots/](https
 * better-sqlite3 ```npm install better-sqlite3```
 * electron-builder ```npm install --save-dev electron-builder```
 * jsdoc ```npm install --save-dev jsdoc```
+  * ```npm run docs``` to build docs adhoc if/when updated
 
 ## TroubleShooting
 
