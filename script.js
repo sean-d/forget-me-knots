@@ -1,3 +1,16 @@
+/**
+ * Adds a new row to the table for project tracking.
+ *
+ * The row includes:
+ * - Checkboxes for various project milestones.
+ * - Date inputs for start and completion dates.
+ * - A textarea for the project name.
+ * - Buttons for saving, marking as done, and deleting the row.
+ *
+ * Functionality:
+ * - Toggles the "important" class when the "important" checkbox is clicked.
+ * - Adds event listeners to handle "Save," "Done," and "Delete" actions.
+ */
 function addRow() {
   const table = document.querySelector("table tbody"); // Ensure tbody is targeted
   const newRow = table.insertRow();
@@ -38,6 +51,18 @@ function addRow() {
   newRow.querySelector(".save").addEventListener("click", () => saveRow(newRow.querySelector(".save")));
 }
 
+/**
+ * Marks a project row as done or restores it from the archive.
+ *
+ * - Ensures the row is saved before marking it as done.
+ * - Prevents archiving if the project name is empty.
+ * - Calls the Electron main process to update archive status.
+ * - Updates UI by removing archived items or restoring them.
+ * - Toggles the button text between "Done" and "Undo".
+ *
+ * @param {HTMLButtonElement} button - The button that triggered the action.
+ * @returns {Promise<void>}
+ */
 async function markAsDone(button) {
   const row = button.closest("tr");
   const rowId = row.dataset.id;
@@ -78,6 +103,18 @@ async function markAsDone(button) {
   }
 }
 
+/**
+ * Saves the data from a project row to the database.
+ *
+ * - Ensures the project name is provided before saving.
+ * - Collects all checkbox states and date values.
+ * - Sends data to the Electron main process for storage.
+ * - Updates the row with a new ID if it was newly created.
+ * - Displays success or error messages based on the response.
+ *
+ * @param {HTMLButtonElement} button - The button that triggered the save action.
+ * @returns {Promise<void>}
+ */
 async function saveRow(button) {
   const row = button.closest("tr");
   let rowId = row.dataset.id || null;
@@ -119,6 +156,17 @@ async function saveRow(button) {
   }
 }
 
+/**
+ * Deletes a project row from the table and database.
+ *
+ * - Prompts the user for confirmation before deleting.
+ * - If the row is unsaved (has no ID), it is simply removed from the UI.
+ * - If the row is saved, it sends a request to delete it from the database.
+ * - Updates the UI by removing the row upon successful deletion.
+ *
+ * @param {HTMLButtonElement} button - The button that triggered the delete action.
+ * @returns {Promise<void>}
+ */
 async function deleteRow(button) {
   const row = button.closest("tr");
   const rowId = row.dataset.id; // Get row ID
@@ -142,6 +190,17 @@ async function deleteRow(button) {
   }
 }
 
+/**
+ * Loads active (non-archived) project rows from the database and populates the table.
+ *
+ * - Retrieves active items from the Electron API.
+ * - Ensures the table body exists before populating data.
+ * - Displays a message in the console if no active items are found.
+ * - Dynamically creates and inserts table rows with appropriate data.
+ * - Adds event listeners for marking important items, saving, completing, and deleting.
+ *
+ * @returns {Promise<void>}
+ */
 async function loadActiveItems() {
   const tableBody = document.querySelector("table tbody");
 
@@ -212,6 +271,18 @@ async function loadActiveItems() {
   });
 }
 
+/**
+ * Toggles the "important" status of a project row.
+ *
+ * - Prevents row click events from interfering with the checkbox.
+ * - Immediately applies or removes the "important" class for styling.
+ * - If the row is new (no `rowId`), it does not attempt to update the database.
+ * - If the row exists, it updates the importance status in the database via Electron API.
+ *
+ * @param {Event} event - The click event triggered by the checkbox.
+ * @param {number | null} rowId - The ID of the row (null for unsaved rows).
+ * @returns {Promise<void>}
+ */
 async function toggleImportant(event, rowId) {
   event.stopPropagation(); // Prevent row click from interfering
 
@@ -232,23 +303,22 @@ async function toggleImportant(event, rowId) {
   await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
 }
 
-
-// Load active items when the page loads
-document.addEventListener("DOMContentLoaded", () => {
+/**
+*  Ensures that active project items are loaded as soon as the page finishes loading.
+*/
+ document.addEventListener("DOMContentLoaded", () => {
   loadActiveItems(); // Ensure items load when page opens
 });
 
-async function toggleImportant(event, rowId) {
-  event.stopPropagation(); // Prevent row click from interfering
 
-  const row = document.querySelector(`tr[data-id="${rowId}"]`);
-  const isChecked = row.classList.toggle("important"); // Toggle class
-
-  // Save to the database
-  await window.electronAPI.markImportant(rowId, isChecked ? 1 : 0);
-}
-
-// for reports generated
+/**
+ * Adds an event listener to open reports when the page loads.
+ *
+ * - Waits for the DOM to be fully loaded before executing.
+ * - Finds the "Open Reports" button by its ID (`open-reports`).
+ * - If the button exists, attaches a click event listener.
+ * - Calls the Electron API to open reports when clicked.
+ */
 document.addEventListener("DOMContentLoaded", () => {
   const openReportsBtn = document.getElementById("open-reports");
   if (openReportsBtn) {
